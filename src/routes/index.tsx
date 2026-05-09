@@ -1,70 +1,13 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { motion, useScroll, useTransform } from "framer-motion";
-import { useRef, useState } from "react";
+import { useRef } from "react";
 import heroPortrait from "@/assets/hero-portrait.jpg";
-import perfumesImg from "@/assets/perfumes.jpg";
-import veilsImg from "@/assets/veils.jpg";
-import jewelryImg from "@/assets/jewelry.jpg";
-import bagsImg from "@/assets/bags.jpg";
-import slippersImg from "@/assets/slippers.jpg";
+import { Nav, Footer } from "@/components/SiteChrome";
+import { collections } from "@/lib/collections";
 
 export const Route = createFileRoute("/")({
   component: Index,
 });
-
-const collections = [
-  { name: "Perfumes", tagline: "Signature scents that linger in memory", img: perfumesImg },
-  { name: "Veils", tagline: "Featherlight silks that move like poetry", img: veilsImg },
-  { name: "Jewelries", tagline: "Heirloom gold for moments that matter", img: jewelryImg },
-  { name: "Bags", tagline: "Quiet luxury you carry every day", img: bagsImg },
-  { name: "Female Slippers", tagline: "Hand-beaded comfort, head-to-toe grace", img: slippersImg },
-];
-
-function Nav() {
-  const [open, setOpen] = useState(false);
-  const links = [
-    { href: "#collections", label: "Collections" },
-    { href: "#story", label: "Our Story" },
-    { href: "#why", label: "Why Al-Nur" },
-    { href: "#contact", label: "Contact" },
-  ];
-  return (
-    <header className="fixed top-0 z-50 w-full backdrop-blur-md bg-background/40 border-b border-border">
-      <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-4">
-        <a href="#top" className="flex items-baseline gap-2">
-          <span className="font-display text-2xl font-semibold tracking-tight text-gold-grad">Al-Nur</span>
-          <span className="hidden sm:block text-xs uppercase tracking-[0.3em] text-muted-foreground">Jewelries & Veils</span>
-        </a>
-        <nav className="hidden md:flex items-center gap-8">
-          {links.map(l => (
-            <a key={l.href} href={l.href} className="text-sm text-foreground/80 hover:text-primary transition-colors">
-              {l.label}
-            </a>
-          ))}
-          <a href="https://wa.me/2349166261575" target="_blank" rel="noreferrer"
-             className="rounded-full bg-gold-grad px-5 py-2 text-sm font-medium text-primary-foreground shadow-gold hover:shadow-glow transition-shadow">
-            Shop on WhatsApp
-          </a>
-        </nav>
-        <button onClick={() => setOpen(!open)} className="md:hidden text-foreground" aria-label="Menu">
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-            {open ? <path d="M6 6L18 18M6 18L18 6" /> : <path d="M3 6h18M3 12h18M3 18h18" />}
-          </svg>
-        </button>
-      </div>
-      {open && (
-        <div className="md:hidden border-t border-border bg-background/95 px-6 py-4 flex flex-col gap-4">
-          {links.map(l => (
-            <a key={l.href} href={l.href} onClick={() => setOpen(false)} className="text-sm">{l.label}</a>
-          ))}
-          <a href="https://wa.me/2349166261575" className="rounded-full bg-gold-grad px-5 py-2 text-center text-sm font-medium text-primary-foreground">
-            Shop on WhatsApp
-          </a>
-        </div>
-      )}
-    </header>
-  );
-}
 
 function Hero() {
   const ref = useRef<HTMLDivElement>(null);
@@ -191,8 +134,7 @@ function Collections() {
           {collections.map((c, i) => (
             <motion.a
               key={c.name}
-              href="https://wa.me/2349166261575"
-              target="_blank" rel="noreferrer"
+              href={`/collections/${c.slug}`}
               initial={{ opacity: 0, y: 40 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true, margin: "-80px" }}
@@ -344,17 +286,6 @@ function Contact() {
   );
 }
 
-function Footer() {
-  return (
-    <footer className="border-t border-border py-12 px-6 text-center text-sm text-muted-foreground">
-      <div className="mx-auto max-w-5xl">
-        <div className="font-display text-3xl text-gold-grad mb-2">Al-Nur</div>
-        <div className="text-xs uppercase tracking-[0.3em] mb-6">Where elegance meets modesty</div>
-        <p>© {new Date().getFullYear()} Al-Nur Jewelries & Veils. Crafted with care.</p>
-      </div>
-    </footer>
-  );
-}
 
 function Index() {
   return (
