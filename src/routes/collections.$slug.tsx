@@ -4,7 +4,7 @@ import { Nav, Footer } from "@/components/SiteChrome";
 import { collections, getCollection, waLink, WHATSAPP } from "@/lib/collections";
 
 export const Route = createFileRoute("/collections/$slug")({
-  loader: ({ params }) => {
+  loader: ({ params }): import("@/lib/collections").Collection => {
     const c = getCollection(params.slug);
     if (!c) throw notFound();
     return c;
