@@ -1,24 +1,13 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { motion, useScroll, useTransform } from "framer-motion";
-import { useRef, useState } from "react";
+import { useRef } from "react";
 import heroPortrait from "@/assets/hero-portrait.jpg";
-import perfumesImg from "@/assets/perfumes.jpg";
-import veilsImg from "@/assets/veils.jpg";
-import jewelryImg from "@/assets/jewelry.jpg";
-import bagsImg from "@/assets/bags.jpg";
-import slippersImg from "@/assets/slippers.jpg";
+import { Nav, Footer } from "@/components/SiteChrome";
+import { collections, WHATSAPP } from "@/lib/collections";
 
 export const Route = createFileRoute("/")({
   component: Index,
 });
-
-const collections = [
-  { name: "Perfumes", tagline: "Signature scents that linger in memory", img: perfumesImg },
-  { name: "Veils", tagline: "Featherlight silks that move like poetry", img: veilsImg },
-  { name: "Jewelries", tagline: "Heirloom gold for moments that matter", img: jewelryImg },
-  { name: "Bags", tagline: "Quiet luxury you carry every day", img: bagsImg },
-  { name: "Female Slippers", tagline: "Hand-beaded comfort, head-to-toe grace", img: slippersImg },
-];
 
 function Nav() {
   const [open, setOpen] = useState(false);
