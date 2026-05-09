@@ -9,52 +9,6 @@ export const Route = createFileRoute("/")({
   component: Index,
 });
 
-function Nav() {
-  const [open, setOpen] = useState(false);
-  const links = [
-    { href: "#collections", label: "Collections" },
-    { href: "#story", label: "Our Story" },
-    { href: "#why", label: "Why Al-Nur" },
-    { href: "#contact", label: "Contact" },
-  ];
-  return (
-    <header className="fixed top-0 z-50 w-full backdrop-blur-md bg-background/40 border-b border-border">
-      <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-4">
-        <a href="#top" className="flex items-baseline gap-2">
-          <span className="font-display text-2xl font-semibold tracking-tight text-gold-grad">Al-Nur</span>
-          <span className="hidden sm:block text-xs uppercase tracking-[0.3em] text-muted-foreground">Jewelries & Veils</span>
-        </a>
-        <nav className="hidden md:flex items-center gap-8">
-          {links.map(l => (
-            <a key={l.href} href={l.href} className="text-sm text-foreground/80 hover:text-primary transition-colors">
-              {l.label}
-            </a>
-          ))}
-          <a href="https://wa.me/2349166261575" target="_blank" rel="noreferrer"
-             className="rounded-full bg-gold-grad px-5 py-2 text-sm font-medium text-primary-foreground shadow-gold hover:shadow-glow transition-shadow">
-            Shop on WhatsApp
-          </a>
-        </nav>
-        <button onClick={() => setOpen(!open)} className="md:hidden text-foreground" aria-label="Menu">
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-            {open ? <path d="M6 6L18 18M6 18L18 6" /> : <path d="M3 6h18M3 12h18M3 18h18" />}
-          </svg>
-        </button>
-      </div>
-      {open && (
-        <div className="md:hidden border-t border-border bg-background/95 px-6 py-4 flex flex-col gap-4">
-          {links.map(l => (
-            <a key={l.href} href={l.href} onClick={() => setOpen(false)} className="text-sm">{l.label}</a>
-          ))}
-          <a href="https://wa.me/2349166261575" className="rounded-full bg-gold-grad px-5 py-2 text-center text-sm font-medium text-primary-foreground">
-            Shop on WhatsApp
-          </a>
-        </div>
-      )}
-    </header>
-  );
-}
-
 function Hero() {
   const ref = useRef<HTMLDivElement>(null);
   const { scrollYProgress } = useScroll({ target: ref, offset: ["start start", "end start"] });
