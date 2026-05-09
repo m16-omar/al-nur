@@ -286,17 +286,6 @@ function Contact() {
   );
 }
 
-function Footer() {
-  return (
-    <footer className="border-t border-border py-12 px-6 text-center text-sm text-muted-foreground">
-      <div className="mx-auto max-w-5xl">
-        <div className="font-display text-3xl text-gold-grad mb-2">Al-Nur</div>
-        <div className="text-xs uppercase tracking-[0.3em] mb-6">Where elegance meets modesty</div>
-        <p>© {new Date().getFullYear()} Al-Nur Jewelries & Veils. Crafted with care.</p>
-      </div>
-    </footer>
-  );
-}
 
 function Index() {
   return (
