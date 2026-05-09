@@ -157,9 +157,9 @@ function Hero() {
 
       {/* marquee */}
       <div className="absolute bottom-0 left-0 right-0 border-t border-border bg-background/40 backdrop-blur-sm py-4 overflow-hidden">
-        <div className="flex gap-12 animate-[shimmer_30s_linear_infinite] whitespace-nowrap text-sm uppercase tracking-[0.3em] text-muted-foreground">
+        <div className="flex w-fit gap-8 md:gap-12 animate-marquee whitespace-nowrap text-xs md:text-sm uppercase tracking-[0.2em] md:tracking-[0.3em] text-muted-foreground">
           {[...Array(2)].map((_, i) => (
-            <div key={i} className="flex gap-12">
+            <div key={i} className="flex gap-8 md:gap-12">
               <span>✦ Perfumes</span>
               <span>✦ Veils</span>
               <span>✦ Jewelries</span>
