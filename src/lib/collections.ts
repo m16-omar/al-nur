@@ -6,8 +6,7 @@ import slippersImg from "@/assets/slippers.jpg";
 
 export const WHATSAPP = "https://wa.me/2349166261575";
 
-export const waLink = (text: string) =>
-  `${WHATSAPP}?text=${encodeURIComponent(text)}`;
+export const waLink = (text: string) => `${WHATSAPP}?text=${encodeURIComponent(text)}`;
 
 export type Product = {
   name: string;
@@ -67,7 +66,11 @@ export const collections: Collection[] = [
     products: [
       { name: "Aisha Bridal Set", price: "₦55,000", blurb: "Necklace, earrings, bangles & ring." },
       { name: "Nur Necklace", price: "₦18,000", blurb: "Layered chains with crescent pendant." },
-      { name: "Zahra Bangles (set of 6)", price: "₦22,000", blurb: "Hand-engraved gold-tone bangles." },
+      {
+        name: "Zahra Bangles (set of 6)",
+        price: "₦22,000",
+        blurb: "Hand-engraved gold-tone bangles.",
+      },
       { name: "Pearl Drop Earrings", price: "₦9,500", blurb: "Freshwater pearls on gold posts." },
       { name: "Khadija Choker", price: "₦14,000", blurb: "Statement choker with cz stones." },
       { name: "Signature Ring", price: "₦7,500", blurb: "Adjustable, ornate band." },
@@ -107,5 +110,4 @@ export const collections: Collection[] = [
   },
 ];
 
-export const getCollection = (slug: string) =>
-  collections.find((c) => c.slug === slug);
+export const getCollection = (slug: string) => collections.find((c) => c.slug === slug);

@@ -19,7 +19,10 @@ function NotFoundComponent() {
         <p className="mt-2 text-sm text-muted-foreground">
           The page you're looking for doesn't exist.
         </p>
-        <Link to="/" className="mt-6 inline-flex rounded-full bg-gold-grad px-6 py-2.5 text-sm font-medium text-primary-foreground">
+        <Link
+          to="/"
+          className="mt-6 inline-flex rounded-full bg-gold-grad px-6 py-2.5 text-sm font-medium text-primary-foreground"
+        >
           Go home
         </Link>
       </div>
@@ -36,7 +39,10 @@ function ErrorComponent({ error, reset }: { error: Error; reset: () => void }) {
         <h1 className="text-xl font-semibold">Something went wrong</h1>
         <p className="mt-2 text-sm text-muted-foreground">{error.message}</p>
         <button
-          onClick={() => { router.invalidate(); reset(); }}
+          onClick={() => {
+            router.invalidate();
+            reset();
+          }}
           className="mt-6 rounded-full bg-gold-grad px-6 py-2.5 text-sm font-medium text-primary-foreground"
         >
           Try again
@@ -52,7 +58,11 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
       { title: "Al-Nur Jewelries & Veils — Where Elegance Meets Modesty" },
-      { name: "description", content: "Premium perfumes, veils, jewelries, bags and slippers. Crafted to make you shine with confidence and dignity. Nationwide delivery." },
+      {
+        name: "description",
+        content:
+          "Premium perfumes, veils, jewelries, bags and slippers. Crafted to make you shine with confidence and dignity. Nationwide delivery.",
+      },
       { property: "og:title", content: "Al-Nur Jewelries & Veils" },
       { property: "og:description", content: "Where elegance meets modesty." },
       { property: "og:type", content: "website" },
@@ -61,7 +71,10 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { rel: "stylesheet", href: appCss },
       { rel: "preconnect", href: "https://fonts.googleapis.com" },
       { rel: "preconnect", href: "https://fonts.gstatic.com", crossOrigin: "anonymous" },
-      { rel: "stylesheet", href: "https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600;700&family=Outfit:wght@300;400;500;600;700&family=Amiri:wght@400;700&display=swap" },
+      {
+        rel: "stylesheet",
+        href: "https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600;700&family=Outfit:wght@300;400;500;600;700&family=Amiri:wght@400;700&display=swap",
+      },
     ],
   }),
   shellComponent: RootShell,
@@ -73,8 +86,13 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
 function RootShell({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en">
-      <head><HeadContent /></head>
-      <body>{children}<Scripts /></body>
+      <head>
+        <HeadContent />
+      </head>
+      <body>
+        {children}
+        <Scripts />
+      </body>
     </html>
   );
 }
