@@ -1,9 +1,9 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute } from "@tanstack/react-router";
 import { motion, useScroll, useTransform } from "framer-motion";
 import { useRef } from "react";
 import heroPortrait from "@/assets/hero-portrait.jpg";
 import { Nav, Footer } from "@/components/SiteChrome";
-import { collections, WHATSAPP } from "@/lib/collections";
+import { collections } from "@/lib/collections";
 
 export const Route = createFileRoute("/")({
   component: Index,
