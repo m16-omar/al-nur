@@ -34,7 +34,7 @@ export const Route = createFileRoute("/collections/$slug")({
 });
 
 function CollectionPage() {
-  const c = Route.useLoaderData();
+  const c = Route.useLoaderData() as import("@/lib/collections").Collection;
   const others = collections.filter(x => x.slug !== c.slug);
 
   return (
