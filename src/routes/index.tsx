@@ -134,8 +134,7 @@ function Collections() {
           {collections.map((c, i) => (
             <motion.a
               key={c.name}
-              href="https://wa.me/2349166261575"
-              target="_blank" rel="noreferrer"
+              href={`/collections/${c.slug}`}
               initial={{ opacity: 0, y: 40 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true, margin: "-80px" }}
