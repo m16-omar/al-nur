@@ -1,215 +1,56 @@
-import { createFileRoute } from "@tanstack/react-router";
-import { motion, useScroll, useTransform } from "framer-motion";
-import { useRef } from "react";
-import heroPortrait from "@/assets/hero-portrait.jpg";
+import { createFileRoute, Link } from "@tanstack/react-router";
+import { motion } from "framer-motion";
+import { useState } from "react";
 import { Nav, Footer } from "@/components/SiteChrome";
+import { WelcomeBanner } from "@/components/WelcomeBanner";
+import { HeroCarousel } from "@/components/HeroCarousel";
+import { CategoryStrip } from "@/components/CategoryStrip";
+import { AiAssistantCard } from "@/components/AiAssistantCard";
+import { FeaturedProducts } from "@/components/FeaturedProducts";
+import { MobileBottomNav } from "@/components/MobileBottomNav";
 import { collections } from "@/lib/collections";
+import { CartSheet } from "@/components/CartSheet";
 
 export const Route = createFileRoute("/")({
   component: Index,
 });
 
-function Hero() {
-  const ref = useRef<HTMLDivElement>(null);
-  const { scrollYProgress } = useScroll({ target: ref, offset: ["start start", "end start"] });
-  const y = useTransform(scrollYProgress, [0, 1], [0, 150]);
-  const opacity = useTransform(scrollYProgress, [0, 0.8], [1, 0]);
-
+function CollectionsShowcase() {
   return (
-    <section
-      ref={ref}
-      id="top"
-      className="relative min-h-screen overflow-hidden bg-hero arabesque pt-24"
-    >
-      <div className="absolute inset-0 pointer-events-none">
-        <div className="absolute -top-40 -right-40 h-[500px] w-[500px] rounded-full bg-ember-grad opacity-30 blur-3xl" />
-        <div className="absolute -bottom-40 -left-40 h-[500px] w-[500px] rounded-full bg-gold-grad opacity-20 blur-3xl" />
-      </div>
-
-      <motion.div
-        style={{ y, opacity }}
-        className="relative mx-auto grid max-w-7xl gap-12 px-6 py-12 md:grid-cols-2 md:items-center md:py-20"
-      >
-        <div className="order-2 md:order-1">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8 }}
-            className="inline-flex items-center gap-2 rounded-full border border-primary/30 bg-card/40 px-4 py-1.5 text-xs uppercase tracking-[0.25em] text-primary"
-          >
-            <span className="h-1.5 w-1.5 rounded-full bg-primary animate-pulse" />
-            New Collection · 1446 AH
-          </motion.div>
-
-          <motion.h1
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.9, delay: 0.1 }}
-            className="mt-6 font-display text-6xl font-semibold leading-[0.95] sm:text-7xl md:text-8xl"
-          >
-            <span className="text-gold-grad">Al-Nur</span>
-            <span className="block text-foreground/95 italic font-light text-4xl sm:text-5xl md:text-6xl mt-2">
-              Jewelries & Veils
-            </span>
-          </motion.h1>
-
-          <motion.p
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ duration: 1, delay: 0.4 }}
-            className="mt-6 max-w-md font-display italic text-xl text-muted-foreground"
-          >
-            Where elegance meets modesty — a quiet luxury for every woman who carries light.
-          </motion.p>
-
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 0.6 }}
-            className="mt-10 flex flex-wrap gap-4"
-          >
-            <a
-              href="#collections"
-              className="rounded-full bg-gold-grad px-7 py-3.5 text-sm font-medium text-primary-foreground shadow-gold hover:shadow-glow transition-all hover:scale-[1.02]"
-            >
-              Explore Collections
-            </a>
-            <a
-              href="https://wa.me/2349166261575"
-              target="_blank"
-              rel="noreferrer"
-              className="rounded-full border border-primary/40 px-7 py-3.5 text-sm font-medium hover:bg-primary/10 transition-colors"
-            >
-              Order on WhatsApp →
-            </a>
-          </motion.div>
-
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.9 }}
-            className="mt-12 flex items-center gap-8 text-sm text-muted-foreground"
-          >
-            <div>
-              <div className="font-display text-3xl text-primary">5+</div>Curated lines
-            </div>
-            <div className="h-10 w-px bg-border" />
-            <div>
-              <div className="font-display text-3xl text-primary">36</div>States delivered
-            </div>
-            <div className="h-10 w-px bg-border" />
-            <div>
-              <div className="font-display text-3xl text-primary">100%</div>Hand-picked
-            </div>
-          </motion.div>
-        </div>
-
-        <motion.div
-          initial={{ opacity: 0, scale: 0.9 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ duration: 1.2 }}
-          className="order-1 md:order-2 relative"
-        >
-          <div className="absolute -inset-4 bg-gold-grad rounded-[2rem] blur-2xl opacity-30" />
-          <div className="relative overflow-hidden rounded-[2rem] gold-border shadow-deep">
-            <img
-              src={heroPortrait}
-              alt="Elegant woman wearing veil and gold jewelry"
-              width={1024}
-              height={1024}
-              className="w-full h-auto object-cover"
-            />
-            <div className="absolute inset-x-0 bottom-0 h-1/3 bg-gradient-to-t from-background/80 to-transparent" />
-            <div className="absolute bottom-6 left-6 right-6 flex items-center justify-between">
-              <div>
-                <div className="text-xs uppercase tracking-widest text-primary">Featured</div>
-                <div className="font-display text-xl">The Aisha Set</div>
-              </div>
-              <button className="rounded-full bg-background/80 backdrop-blur p-3 hover:bg-primary hover:text-primary-foreground transition-colors">
-                <svg
-                  width="18"
-                  height="18"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                >
-                  <path d="M5 12h14M13 6l6 6-6 6" />
-                </svg>
-              </button>
-            </div>
-          </div>
-          <div className="absolute -bottom-6 -left-6 hidden md:block float">
-            <div className="rounded-2xl gold-border bg-card p-4 shadow-deep">
-              <div className="flex items-center gap-3">
-                <div className="h-10 w-10 rounded-full bg-gold-grad flex items-center justify-center text-primary-foreground">
-                  ★
-                </div>
-                <div>
-                  <div className="text-xs text-muted-foreground">Bridal Special</div>
-                  <div className="text-sm font-medium">Nikkah Ready</div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </motion.div>
-      </motion.div>
-
-      {/* marquee */}
-      <div className="absolute bottom-0 left-0 right-0 border-t border-border bg-background/40 backdrop-blur-sm py-4 overflow-hidden">
-        <div className="flex w-fit gap-8 md:gap-12 animate-marquee whitespace-nowrap text-xs md:text-sm uppercase tracking-[0.2em] md:tracking-[0.3em] text-muted-foreground">
-          {[...Array(2)].map((_, i) => (
-            <div key={i} className="flex gap-8 md:gap-12">
-              <span>✦ Perfumes</span>
-              <span>✦ Veils</span>
-              <span>✦ Jewelries</span>
-              <span>✦ Bags</span>
-              <span>✦ Slippers</span>
-              <span>✦ Free delivery in Lagos</span>
-              <span>✦ Nationwide shipping</span>
-            </div>
-          ))}
-        </div>
-      </div>
-    </section>
-  );
-}
-
-function Collections() {
-  return (
-    <section id="collections" className="relative py-28 px-6">
+    <section id="collections" className="relative py-16 sm:py-24 px-4 sm:px-6 bg-card/20">
       <div className="mx-auto max-w-7xl">
-        <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-6 mb-16">
+        <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-6 mb-12 sm:mb-16">
           <div>
-            <div className="text-xs uppercase tracking-[0.3em] text-primary mb-3">What we sell</div>
-            <h2 className="font-display text-5xl md:text-6xl font-semibold max-w-xl">
+            <div className="text-xs uppercase tracking-[0.3em] text-primary mb-2 font-bold">Collections</div>
+            <h2 className="font-display text-4xl sm:text-5xl font-bold max-w-xl text-foreground">
               Five quiet expressions of <span className="italic text-gold-grad">grace</span>
             </h2>
           </div>
-          <p className="max-w-sm text-muted-foreground">
-            Every piece chosen by hand, every order packed with care. Tap a collection to begin a
-            conversation.
+          <p className="max-w-sm text-sm text-muted-foreground">
+            Every piece chosen by hand, every order packed with care. Tap any collection to explore our signature catalogue.
           </p>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-6 gap-4 auto-rows-[280px]">
           {collections.map((c, i) => (
-            <motion.a
+            <motion.div
               key={c.name}
-              href={`/collections/${c.slug}`}
-              initial={{ opacity: 0, y: 40 }}
+              initial={{ opacity: 0, y: 30 }}
               whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true, margin: "-80px" }}
+              viewport={{ once: true, margin: "-60px" }}
               transition={{ duration: 0.6, delay: i * 0.08 }}
               whileHover={{ y: -6 }}
-              className={`group relative overflow-hidden rounded-3xl gold-border shadow-deep cursor-pointer
-                ${i === 0 ? "md:col-span-3 md:row-span-2" : ""}
-                ${i === 1 ? "md:col-span-3" : ""}
-                ${i === 2 ? "md:col-span-2" : ""}
-                ${i === 3 ? "md:col-span-2" : ""}
-                ${i === 4 ? "md:col-span-2" : ""}
-              `}
+              className={`group relative overflow-hidden rounded-3xl border border-primary/25 shadow-lg cursor-pointer ${
+                i === 0 ? "md:col-span-3 md:row-span-2" : ""
+              } ${i === 1 ? "md:col-span-3" : ""} ${i === 2 ? "md:col-span-2" : ""} ${
+                i === 3 ? "md:col-span-2" : ""
+              } ${i === 4 ? "md:col-span-2" : ""}`}
             >
+              <Link
+                to="/collections/"
+                params={{ slug: c.slug }}
+                className="absolute inset-0 z-10"
+              />
               <img
                 src={c.img}
                 alt={c.name}
@@ -218,26 +59,19 @@ function Collections() {
               />
               <div className="absolute inset-0 bg-gradient-to-t from-background via-background/40 to-transparent" />
               <div className="relative h-full flex flex-col justify-end p-6">
-                <div className="text-xs uppercase tracking-[0.25em] text-primary mb-2">
+                <div className="text-xs uppercase tracking-[0.25em] text-primary font-bold mb-1.5">
                   0{i + 1}
                 </div>
-                <h3 className="font-display text-3xl md:text-4xl font-semibold mb-1">{c.name}</h3>
-                <p className="text-sm text-muted-foreground max-w-xs">{c.tagline}</p>
-                <div className="mt-4 inline-flex items-center gap-2 text-sm text-primary opacity-0 group-hover:opacity-100 transition-opacity">
-                  Shop now
-                  <svg
-                    width="14"
-                    height="14"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                  >
+                <h3 className="font-display text-2xl sm:text-3xl font-bold mb-1 text-foreground">{c.name}</h3>
+                <p className="text-xs sm:text-sm text-muted-foreground max-w-xs">{c.tagline}</p>
+                <div className="mt-3 inline-flex items-center gap-2 text-xs font-bold text-primary opacity-0 group-hover:opacity-100 transition-opacity">
+                  <span>Explore Collection</span>
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                     <path d="M5 12h14M13 6l6 6-6 6" />
                   </svg>
                 </div>
               </div>
-            </motion.a>
+            </motion.div>
           ))}
         </div>
       </div>
@@ -247,24 +81,24 @@ function Collections() {
 
 function Story() {
   return (
-    <section id="story" className="relative py-28 px-6 overflow-hidden">
+    <section id="story" className="relative py-20 sm:py-28 px-4 sm:px-6 overflow-hidden">
       <div className="absolute inset-0 arabesque opacity-30 pointer-events-none" />
       <div className="relative mx-auto max-w-5xl text-center">
-        <div className="text-xs uppercase tracking-[0.3em] text-primary mb-6">Our story</div>
-        <h2 className="font-display text-5xl md:text-7xl font-semibold leading-tight">
-          With our gold sets we elevate <br />
+        <div className="text-xs uppercase tracking-[0.3em] text-primary font-bold mb-4">Our Heritage</div>
+        <h2 className="font-display text-4xl sm:text-6xl font-bold leading-tight">
+          With our curated pieces we elevate <br />
           <span className="italic text-gold-grad">your special occasions</span>
         </h2>
-        <p className="mt-10 text-xl text-muted-foreground max-w-2xl mx-auto leading-relaxed">
-          From elegant veils that embrace modest fashion to perfumes that whisper of tradition,
-          every piece at Al-Nur is crafted to make you shine with confidence and dignity.
+        <p className="mt-6 sm:mt-8 text-base sm:text-lg text-muted-foreground max-w-2xl mx-auto leading-relaxed">
+          From modest abayas and pure Medina silks to royal Moroccan jalabias and heirloom gold bridal sets,
+          every piece at Al-Nur is crafted to make you shine with dignity, modesty, and confidence.
         </p>
 
-        <div className="mt-16 grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div className="mt-12 sm:mt-16 grid grid-cols-1 md:grid-cols-3 gap-6">
           {[
-            { title: "Wedding & Nikkah", body: "Bridal sets curated for the most sacred day." },
-            { title: "Celebration & Gifts", body: "Heartfelt gifts wrapped with intention." },
-            { title: "Everyday Elegance", body: "A quiet touch of luxury, woven into daily life." },
+            { title: "Wedding & Nikkah", body: "Bridal sets and embellished abayas curated for the most sacred day." },
+            { title: "Ramadan & Eid Celebrations", body: "Festive jalabias and pure silk hijabs wrapped with heartfelt intention." },
+            { title: "Everyday Modesty", body: "Featherlight fabrics and timeless silhouettes woven into your daily life." },
           ].map((it, i) => (
             <motion.div
               key={it.title}
@@ -272,11 +106,11 @@ function Story() {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ duration: 0.6, delay: i * 0.15 }}
-              className="rounded-2xl gold-border p-8 text-left"
+              className="rounded-3xl border border-primary/20 bg-card/60 p-6 sm:p-8 text-left shadow-sm"
             >
-              <div className="font-display text-5xl text-gold-grad mb-4">0{i + 1}</div>
-              <h3 className="font-display text-2xl mb-2">{it.title}</h3>
-              <p className="text-sm text-muted-foreground">{it.body}</p>
+              <div className="font-display text-4xl font-bold text-gold-grad mb-3">0{i + 1}</div>
+              <h3 className="font-display text-xl font-bold mb-2 text-foreground">{it.title}</h3>
+              <p className="text-xs sm:text-sm text-muted-foreground leading-relaxed">{it.body}</p>
             </motion.div>
           ))}
         </div>
@@ -287,28 +121,29 @@ function Story() {
 
 function Why() {
   const items = [
-    "Hand-picked premium pieces",
-    "Free delivery within Lagos",
-    "Nationwide shipping in 36 states",
-    "WhatsApp concierge ordering",
-    "Bridal & Nikkah specialists",
-    "Authentic, ethically sourced",
+    "Hand-picked premium fabrics from Dubai & Medina",
+    "Free delivery within Lagos on eligible orders",
+    "Guaranteed nationwide shipping across all 36 states",
+    "WhatsApp concierge ordering & instant size guidance",
+    "Dedicated Nikkah & Bridal jewellery specialists",
+    "100% authentic, modest, and ethically sourced",
   ];
+
   return (
-    <section id="why" className="relative py-28 px-6">
-      <div className="mx-auto max-w-7xl grid md:grid-cols-2 gap-16 items-center">
+    <section id="why" className="relative py-16 sm:py-24 px-4 sm:px-6 bg-card/30">
+      <div className="mx-auto max-w-7xl grid md:grid-cols-2 gap-12 sm:gap-16 items-center">
         <div>
-          <div className="text-xs uppercase tracking-[0.3em] text-primary mb-4">Why choose us</div>
-          <h2 className="font-display text-5xl md:text-6xl font-semibold leading-tight">
+          <div className="text-xs uppercase tracking-[0.3em] text-primary font-bold mb-3">Why Al-Nur</div>
+          <h2 className="font-display text-4xl sm:text-5xl font-bold leading-tight">
             Because every woman <br />
-            <span className="italic text-gold-grad">deserves to shine.</span>
+            <span className="italic text-gold-grad">deserves to shine with grace.</span>
           </h2>
-          <p className="mt-6 text-muted-foreground max-w-md">
-            We don't sell products — we curate small ceremonies of elegance, delivered to your door
-            with the warmth of a friend.
+          <p className="mt-4 text-sm sm:text-base text-muted-foreground max-w-md leading-relaxed">
+            We don't merely offer fashion — we curate moments of quiet luxury, delivered to your door
+            with warmth, care, and attention to every stitch.
           </p>
         </div>
-        <ul className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <ul className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
           {items.map((it, i) => (
             <motion.li
               key={it}
@@ -316,12 +151,12 @@ function Why() {
               whileInView={{ opacity: 1, x: 0 }}
               viewport={{ once: true }}
               transition={{ duration: 0.5, delay: i * 0.06 }}
-              className="flex items-start gap-3 rounded-xl bg-card/50 border border-border p-4"
+              className="flex items-start gap-3 rounded-2xl bg-card border border-border/80 p-4 shadow-sm"
             >
-              <span className="mt-0.5 flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-full bg-gold-grad text-primary-foreground text-xs">
+              <span className="mt-0.5 flex h-5 w-5 flex-shrink-0 items-center justify-center rounded-full bg-primary text-primary-foreground text-xs font-bold">
                 ✓
               </span>
-              <span className="text-sm">{it}</span>
+              <span className="text-xs sm:text-sm font-medium text-foreground">{it}</span>
             </motion.li>
           ))}
         </ul>
@@ -332,57 +167,36 @@ function Why() {
 
 function Contact() {
   return (
-    <section id="contact" className="relative py-28 px-6">
+    <section id="contact" className="relative py-20 px-4 sm:px-6">
       <div className="mx-auto max-w-5xl">
-        <div className="relative overflow-hidden rounded-[2.5rem] gold-border bg-ember-grad p-10 md:p-16 text-center shadow-deep">
-          <div className="absolute inset-0 arabesque opacity-20" />
-          <div className="relative">
-            <div className="text-xs uppercase tracking-[0.3em] text-cream/80 mb-4">Contact us</div>
-            <h2 className="font-display text-5xl md:text-7xl font-semibold text-cream">
-              Begin your <span className="italic">Al-Nur</span> moment
+        <div className="relative overflow-hidden rounded-[2.5rem] border border-primary/30 bg-gradient-to-br from-[#3A1208] via-[#4A1A0C] to-[#200B04] p-8 sm:p-14 text-center shadow-2xl text-white">
+          <div className="absolute inset-0 arabesque opacity-20 pointer-events-none" />
+          <div className="relative z-10">
+            <div className="text-xs uppercase tracking-[0.3em] text-amber-300 font-bold mb-3">Contact Our Boutique</div>
+            <h2 className="font-display text-3xl sm:text-5xl md:text-6xl font-bold text-white">
+              Begin your <span className="italic text-amber-300">Al-Nur</span> moment
             </h2>
-            <p className="mt-6 text-cream/90 max-w-xl mx-auto">
-              We deliver nationwide. Reach us anytime — we'd love to help you find the perfect
-              piece.
+            <p className="mt-4 text-xs sm:text-sm text-amber-100/80 max-w-lg mx-auto leading-relaxed">
+              We deliver nationwide. Reach our concierge anytime — we would love to assist you with custom orders, bridal sizing, or styling advice.
             </p>
 
-            <div className="mt-12 flex flex-col sm:flex-row gap-4 justify-center">
+            <div className="mt-8 sm:mt-10 flex flex-col sm:flex-row gap-3.5 justify-center">
               <a
                 href="https://wa.me/2349166261575"
                 target="_blank"
                 rel="noreferrer"
-                className="group rounded-full bg-cream text-background px-8 py-4 font-medium hover:bg-gold-grad transition-colors flex items-center justify-center gap-3"
+                className="rounded-full bg-gold-grad px-8 py-3.5 text-xs sm:text-sm font-bold text-primary-foreground shadow-gold hover:scale-105 active:scale-95 transition-all flex items-center justify-center gap-2"
               >
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
-                  <path d="M17.5 14.4c-.3-.1-1.7-.8-2-.9-.3-.1-.5-.1-.7.1-.2.3-.7.9-.9 1.1-.2.2-.3.2-.6.1-.3-.1-1.2-.5-2.3-1.4-.8-.7-1.4-1.7-1.6-1.9-.2-.3 0-.5.1-.6.1-.1.3-.3.4-.5.1-.2.2-.3.3-.5.1-.2 0-.4 0-.5 0-.1-.7-1.6-.9-2.2-.2-.6-.5-.5-.7-.5h-.6c-.2 0-.5.1-.7.4-.3.3-1 .9-1 2.3 0 1.4 1 2.7 1.1 2.9.1.2 2 3.1 4.9 4.3.7.3 1.2.5 1.6.6.7.2 1.3.2 1.8.1.5-.1 1.7-.7 1.9-1.3.2-.7.2-1.2.2-1.3-.1-.1-.3-.2-.6-.3zM12 2C6.5 2 2 6.5 2 12c0 1.8.5 3.4 1.3 4.9L2 22l5.3-1.3c1.4.8 3 1.3 4.7 1.3 5.5 0 10-4.5 10-10S17.5 2 12 2zm0 18c-1.5 0-3-.4-4.3-1.2l-.3-.2-3.2.8.8-3.1-.2-.3C4 14.7 3.6 13.4 3.6 12 3.6 7.4 7.4 3.6 12 3.6S20.4 7.4 20.4 12 16.6 20 12 20z" />
-                </svg>
-                <span>WhatsApp · 0916 626 1575</span>
+                <span>WhatsApp Concierge · 0916 626 1575</span>
               </a>
               <a
                 href="https://www.tiktok.com/@alnurstore2"
                 target="_blank"
                 rel="noreferrer"
-                className="rounded-full border border-cream/40 text-cream px-8 py-4 font-medium hover:bg-cream/10 transition-colors flex items-center justify-center gap-3"
+                className="rounded-full border border-amber-300/40 text-amber-200 px-6 py-3.5 text-xs sm:text-sm font-semibold hover:bg-amber-300/10 transition-colors flex items-center justify-center gap-2"
               >
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
-                  <path d="M19.6 6.3a4.8 4.8 0 01-3.8-2.1V14a5.4 5.4 0 11-5.4-5.4v2.6a2.8 2.8 0 102.8 2.8V2h2.6a4.8 4.8 0 003.8 4.3z" />
-                </svg>
                 <span>TikTok · @alnurstore2</span>
               </a>
-            </div>
-
-            <div className="mt-12 inline-flex items-center gap-3 rounded-full border border-cream/30 bg-cream/10 px-5 py-2 text-sm text-cream">
-              <svg
-                width="16"
-                height="16"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-              >
-                <path d="M3 7l9 6 9-6M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
-              </svg>
-              We deliver nationwide
             </div>
           </div>
         </div>
@@ -392,15 +206,48 @@ function Contact() {
 }
 
 function Index() {
+  const [activeCategory, setActiveCategory] = useState("all");
+  const [cartOpen, setCartOpen] = useState(false);
+
+  const handleSelectCategorySection = () => {
+    const el = document.getElementById("featured-products");
+    if (el) el.scrollIntoView({ behavior: "smooth" });
+  };
+
+  const handleOpenAi = () => {
+    const aiBtn = document.querySelector("#featured-products");
+    if (aiBtn) aiBtn.scrollIntoView({ behavior: "smooth" });
+  };
+
   return (
-    <main className="min-h-screen bg-background text-foreground">
+    <main className="min-h-screen bg-background text-foreground pb-16 md:pb-0 font-body transition-colors">
       <Nav />
-      <Hero />
-      <Collections />
+      <WelcomeBanner />
+      <HeroCarousel />
+      <CategoryStrip
+        activeCategory={activeCategory}
+        onSelectCategory={(id) => {
+          setActiveCategory(id);
+          const el = document.getElementById("featured-products");
+          if (el) el.scrollIntoView({ behavior: "smooth" });
+        }}
+      />
+      <AiAssistantCard />
+      <FeaturedProducts activeCategory={activeCategory} />
+      <CollectionsShowcase />
       <Story />
       <Why />
       <Contact />
       <Footer />
+
+      {/* Mobile Bottom Navigation matching Flutter App */}
+      <MobileBottomNav
+        onOpenCart={() => setCartOpen(true)}
+        onOpenAi={handleOpenAi}
+        onSelectCategorySection={handleSelectCategorySection}
+      />
+
+      <CartSheet open={cartOpen} setOpen={setCartOpen} />
     </main>
   );
 }

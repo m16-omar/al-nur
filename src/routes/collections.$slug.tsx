@@ -2,6 +2,8 @@ import { createFileRoute, Link, notFound } from "@tanstack/react-router";
 import { motion } from "framer-motion";
 import { Nav, Footer } from "@/components/SiteChrome";
 import { collections, getCollection, waLink, WHATSAPP } from "@/lib/collections";
+import { useCart } from "@/lib/cart";
+import { ShoppingCart } from "lucide-react";
 
 export const Route = createFileRoute("/collections/$slug")({
   loader: ({ params }): import("@/lib/collections").Collection => {
@@ -41,6 +43,7 @@ export const Route = createFileRoute("/collections/$slug")({
 function CollectionPage() {
   const c = Route.useLoaderData() as import("@/lib/collections").Collection;
   const others = collections.filter((x) => x.slug !== c.slug);
+  const { addToCart } = useCart();
 
   return (
     <main className="min-h-screen bg-background text-foreground">
@@ -129,19 +132,29 @@ function CollectionPage() {
                 <div className="p-6 flex-1 flex flex-col">
                   <h3 className="font-display text-2xl mb-1">{p.name}</h3>
                   <p className="text-sm text-muted-foreground flex-1">{p.blurb}</p>
-                  <a
-                    href={waLink(
-                      `Hi Al-Nur, I'm interested in "${p.name}" (${p.price}) from your ${c.name} collection.`,
-                    )}
-                    target="_blank"
-                    rel="noreferrer"
-                    className="mt-5 inline-flex items-center justify-center gap-2 rounded-full bg-gold-grad px-5 py-2.5 text-sm font-medium text-primary-foreground hover:shadow-glow transition"
-                  >
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
-                      <path d="M17.5 14.4c-.3-.1-1.7-.8-2-.9-.3-.1-.5-.1-.7.1-.2.3-.7.9-.9 1.1-.2.2-.3.2-.6.1-.3-.1-1.2-.5-2.3-1.4-.8-.7-1.4-1.7-1.6-1.9-.2-.3 0-.5.1-.6.1-.1.3-.3.4-.5.1-.2.2-.3.3-.5.1-.2 0-.4 0-.5 0-.1-.7-1.6-.9-2.2-.2-.6-.5-.5-.7-.5h-.6c-.2 0-.5.1-.7.4-.3.3-1 .9-1 2.3 0 1.4 1 2.7 1.1 2.9.1.2 2 3.1 4.9 4.3.7.3 1.2.5 1.6.6.7.2 1.3.2 1.8.1.5-.1 1.7-.7 1.9-1.3.2-.7.2-1.2.2-1.3-.1-.1-.3-.2-.6-.3z" />
-                    </svg>
-                    Inquire on WhatsApp
-                  </a>
+                  
+                  <div className="mt-5 flex gap-2">
+                    <button
+                      onClick={() => addToCart(p)}
+                      className="flex-1 inline-flex items-center justify-center gap-2 rounded-full bg-gold-grad px-5 py-2.5 text-sm font-medium text-primary-foreground hover:shadow-glow transition"
+                    >
+                      <ShoppingCart className="h-4 w-4" />
+                      Add to Bag
+                    </button>
+                    <a
+                      href={waLink(
+                        `Hi Al-Nur, I'm interested in "${p.name}" (${p.price}) from your ${c.name} collection.`,
+                      )}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="inline-flex items-center justify-center w-11 h-11 rounded-full border border-primary/30 text-primary hover:bg-primary/10 transition"
+                      title="Inquire on WhatsApp"
+                    >
+                      <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M17.5 14.4c-.3-.1-1.7-.8-2-.9-.3-.1-.5-.1-.7.1-.2.3-.7.9-.9 1.1-.2.2-.3.2-.6.1-.3-.1-1.2-.5-2.3-1.4-.8-.7-1.4-1.7-1.6-1.9-.2-.3 0-.5.1-.6.1-.1.3-.3.4-.5.1-.2.2-.3.3-.5.1-.2 0-.4 0-.5 0-.1-.7-1.6-.9-2.2-.2-.6-.5-.5-.7-.5h-.6c-.2 0-.5.1-.7.4-.3.3-1 .9-1 2.3 0 1.4 1 2.7 1.1 2.9.1.2 2 3.1 4.9 4.3.7.3 1.2.5 1.6.6.7.2 1.3.2 1.8.1.5-.1 1.7-.7 1.9-1.3.2-.7.2-1.2.2-1.3-.1-.1-.3-.2-.6-.3z" />
+                      </svg>
+                    </a>
+                  </div>
                 </div>
               </motion.div>
             ))}

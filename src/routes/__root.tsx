@@ -5,10 +5,12 @@ import {
   createRootRouteWithContext,
   useRouter,
 } from "@tanstack/react-router";
+import { Toaster } from "sonner";
+import { CartProvider } from "@/lib/cart";
 
 function NotFoundComponent() {
   return (
-    <div className="flex min-h-screen items-center justify-center bg-background px-4">
+    <div className="flex min-h-screen items-center justify-center bg-background px-4 font-body">
       <div className="max-w-md text-center">
         <h1 className="text-7xl font-bold text-gold-grad">404</h1>
         <h2 className="mt-4 text-xl font-semibold">Page not found</h2>
@@ -30,7 +32,7 @@ function ErrorComponent({ error, reset }: { error: Error; reset: () => void }) {
   console.error(error);
   const router = useRouter();
   return (
-    <div className="flex min-h-screen items-center justify-center bg-background px-4">
+    <div className="flex min-h-screen items-center justify-center bg-background px-4 font-body">
       <div className="max-w-md text-center">
         <h1 className="text-xl font-semibold">Something went wrong</h1>
         <p className="mt-2 text-sm text-muted-foreground">{error.message}</p>
@@ -56,8 +58,9 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
 
 function RootComponent() {
   return (
-    <>
+    <CartProvider>
+      <Toaster richColors position="top-center" />
       <Outlet />
-    </>
+    </CartProvider>
   );
 }
