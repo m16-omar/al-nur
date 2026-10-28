@@ -119,20 +119,28 @@ function CollectionPage() {
                 className="group rounded-3xl gold-border overflow-hidden shadow-deep flex flex-col"
               >
                 <div className="relative aspect-[4/3] overflow-hidden">
-                  <img
-                    src={c.img}
-                    alt={p.name}
-                    loading="lazy"
-                    className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-110"
-                  />
+                  <Link to="/product/$id" params={{ id: p.id }} className="block w-full h-full">
+                    <img
+                      src={c.img}
+                      alt={p.name}
+                      loading="lazy"
+                      className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-110"
+                    />
+                  </Link>
                   <div className="absolute top-3 right-3 rounded-full bg-background/80 backdrop-blur px-3 py-1 text-xs font-medium text-primary">
                     {p.price}
                   </div>
                 </div>
                 <div className="p-6 flex-1 flex flex-col">
-                  <h3 className="font-display text-2xl mb-1">{p.name}</h3>
+                  <Link
+                    to="/product/$id"
+                    params={{ id: p.id }}
+                    className="font-display text-2xl mb-1 hover:text-primary transition-colors block"
+                  >
+                    {p.name}
+                  </Link>
                   <p className="text-sm text-muted-foreground flex-1">{p.blurb}</p>
-                  
+
                   <div className="mt-5 flex gap-2">
                     <button
                       onClick={() => addToCart(p)}

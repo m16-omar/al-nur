@@ -25,7 +25,7 @@ export function CartSheet({ open, setOpen }: { open: boolean; setOpen: (o: boole
             onClick={() => setOpen(false)}
             className="fixed inset-0 z-[60] bg-background/80 backdrop-blur-sm"
           />
-          
+
           {/* Panel */}
           <motion.div
             initial={{ x: "100%" }}
@@ -67,14 +67,16 @@ export function CartSheet({ open, setOpen }: { open: boolean; setOpen: (o: boole
                     {cart.map((item) => (
                       <div key={item.product.name} className="flex gap-4">
                         <div className="h-20 w-20 flex-shrink-0 overflow-hidden rounded-xl bg-muted">
-                           {/* Placeholder for product image since it's not in the Product type currently */}
-                           <div className="w-full h-full bg-gold-grad opacity-20 flex items-center justify-center font-display text-xs">
-                             Al-Nur
-                           </div>
+                          {/* Placeholder for product image since it's not in the Product type currently */}
+                          <div className="w-full h-full bg-gold-grad opacity-20 flex items-center justify-center font-display text-xs">
+                            Al-Nur
+                          </div>
                         </div>
                         <div className="flex flex-1 flex-col justify-between">
                           <div className="flex justify-between gap-2">
-                            <h3 className="font-display text-lg leading-tight">{item.product.name}</h3>
+                            <h3 className="font-display text-lg leading-tight">
+                              {item.product.name}
+                            </h3>
                             <button
                               onClick={() => removeFromCart(item.product.name)}
                               className="text-muted-foreground hover:text-destructive transition-colors"
@@ -82,7 +84,9 @@ export function CartSheet({ open, setOpen }: { open: boolean; setOpen: (o: boole
                               <Trash2 className="h-4 w-4" />
                             </button>
                           </div>
-                          <div className="mt-1 text-sm font-medium text-primary">{item.product.price}</div>
+                          <div className="mt-1 text-sm font-medium text-primary">
+                            {item.product.price}
+                          </div>
                           <div className="mt-3 flex items-center gap-3">
                             <button
                               onClick={() => updateQuantity(item.product.name, item.quantity - 1)}
@@ -90,7 +94,9 @@ export function CartSheet({ open, setOpen }: { open: boolean; setOpen: (o: boole
                             >
                               <Minus className="h-3 w-3" />
                             </button>
-                            <span className="text-sm font-medium w-4 text-center">{item.quantity}</span>
+                            <span className="text-sm font-medium w-4 text-center">
+                              {item.quantity}
+                            </span>
                             <button
                               onClick={() => updateQuantity(item.product.name, item.quantity + 1)}
                               className="rounded-full border border-border p-1 hover:bg-muted transition-colors"
@@ -109,7 +115,9 @@ export function CartSheet({ open, setOpen }: { open: boolean; setOpen: (o: boole
                 <div className="border-t border-border p-6 bg-muted/30">
                   <div className="flex items-center justify-between mb-4">
                     <span className="text-muted-foreground">Subtotal</span>
-                    <span className="font-display text-2xl font-semibold">₦{totalPrice.toLocaleString()}</span>
+                    <span className="font-display text-2xl font-semibold">
+                      ₦{totalPrice.toLocaleString()}
+                    </span>
                   </div>
                   <p className="text-xs text-muted-foreground mb-6 text-center italic">
                     Final price includes platform fee breakdown at checkout.

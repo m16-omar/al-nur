@@ -1,7 +1,9 @@
-import React, { useState } from "react";
+import React from "react";
 import { Heart, Star, ShoppingBag, ArrowUpRight } from "lucide-react";
+import { Link } from "@tanstack/react-router";
 import { featuredProducts, Product, waLink } from "@/lib/collections";
 import { useCart } from "@/lib/cart";
+import { useWishlist } from "@/lib/wishlist";
 import { toast } from "sonner";
 
 interface FeaturedProductsProps {
@@ -10,23 +12,7 @@ interface FeaturedProductsProps {
 
 export function FeaturedProducts({ activeCategory }: FeaturedProductsProps) {
   const { addToCart } = useCart();
-  const [favorites, setFavorites] = useState<Record<string, boolean>>({
-    feat_1: true,
-    feat_3: true,
-    feat_5: true,
-  });
-
-  const toggleFavorite = (id: string, name: string) => {
-    setFavorites((prev) => {
-      const next = !prev[id];
-      if (next) {
-        toast.success(`Added ${name} to your wishlist!`);
-      } else {
-        toast.info(`Removed ${name} from wishlist`);
-      }
-      return { ...prev, [id]: next };
-    });
-  };
+  const { isFavorite, toggleFavorite } = useWishlist();
 
   const handleAddToCart = (product: Product) => {
     addToCart(product);
@@ -35,9 +21,10 @@ export function FeaturedProducts({ activeCategory }: FeaturedProductsProps) {
     });
   };
 
-  const filtered = activeCategory === "all"
-    ? featuredProducts
-    : featuredProducts.filter((p) => p.category === activeCategory);
+  const filtered =
+    activeCategory === "all"
+      ? featuredProducts
+      : featuredProducts.filter((p) => p.category === activeCategory);
 
   return (
     <section id="featured-products" className="max-w-7xl mx-auto px-4 sm:px-6 py-10">
@@ -57,7 +44,7 @@ export function FeaturedProducts({ activeCategory }: FeaturedProductsProps) {
 
       <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6">
         {filtered.map((p) => {
-          const isFav = !!favorites[p.id];
+          const isFav = isFavorite(p.id);
           return (
             <div
               key={p.id}
@@ -65,12 +52,14 @@ export function FeaturedProducts({ activeCategory }: FeaturedProductsProps) {
             >
               {/* Product Image & Badges */}
               <div className="relative aspect-[4/5] overflow-hidden bg-muted/40">
-                <img
-                  src={p.img}
-                  alt={p.name}
-                  loading="lazy"
-                  className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
-                />
+                <Link to="/product/$id" params={{ id: p.id }} className="block w-full h-full">
+                  <img
+                    src={p.img}
+                    alt={p.name}
+                    loading="lazy"
+                    className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+                  />
+                </Link>
 
                 {/* Popular Badge */}
                 {p.isPopular && (
@@ -81,13 +70,13 @@ export function FeaturedProducts({ activeCategory }: FeaturedProductsProps) {
 
                 {/* Favorite Button */}
                 <button
-                  onClick={() => toggleFavorite(p.id, p.name)}
+                  onClick={() => toggleFavorite(p)}
                   aria-label="Favorite"
-                  className="absolute top-3 right-3 h-8 w-8 rounded-full bg-white/90 dark:bg-card/90 backdrop-blur-sm flex items-center justify-center text-foreground hover:scale-110 active:scale-95 transition-all shadow-md"
+                  className="absolute top-3 right-3 h-8 w-8 rounded-full bg-white/90 dark:bg-card/90 backdrop-blur-sm flex items-center justify-center text-foreground hover:scale-110 active:scale-95 transition-all shadow-md cursor-pointer"
                 >
                   <Heart
                     className={`h-4 w-4 transition-colors ${
-                      isFav ? "fill-red-500 text-red-500" : "text-muted-foreground"
+                      isFav ? "fill-rose-500 text-rose-500" : "text-muted-foreground"
                     }`}
                   />
                 </button>
@@ -102,9 +91,13 @@ export function FeaturedProducts({ activeCategory }: FeaturedProductsProps) {
                     <span className="text-[11px] text-muted-foreground">({p.reviewCount})</span>
                   </div>
 
-                  <h3 className="font-display text-base sm:text-lg font-bold text-foreground line-clamp-1 group-hover:text-primary transition-colors">
+                  <Link
+                    to="/product/$id"
+                    params={{ id: p.id }}
+                    className="font-display text-base sm:text-lg font-bold text-foreground line-clamp-1 group-hover:text-primary transition-colors block"
+                  >
                     {p.name}
-                  </h3>
+                  </Link>
                   <p className="text-xs text-muted-foreground line-clamp-2 mt-1 leading-relaxed">
                     {p.blurb}
                   </p>
@@ -131,7 +124,9 @@ export function FeaturedProducts({ activeCategory }: FeaturedProductsProps) {
                       <span>Add</span>
                     </button>
                     <a
-                      href={waLink(`Assalamu Alaikum, I would like to order ${p.name} (${p.price})`)}
+                      href={waLink(
+                        `Assalamu Alaikum, I would like to order ${p.name} (${p.price})`,
+                      )}
                       target="_blank"
                       rel="noreferrer"
                       className="rounded-xl border border-primary/30 py-2 text-xs font-bold text-foreground hover:bg-primary/10 active:scale-95 transition-all flex items-center justify-center gap-1"

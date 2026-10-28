@@ -2,6 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useState, useEffect } from "react";
 import { useCart } from "@/lib/cart";
 import { useAuth } from "@/lib/auth";
+import { getSavedAddresses, saveOrder } from "@/lib/orders";
 import { Nav, Footer } from "@/components/SiteChrome";
 import { motion } from "framer-motion";
 import { CheckCircle2, ChevronRight, Lock, ExternalLink, ShieldCheck } from "lucide-react";
@@ -26,11 +27,15 @@ function CheckoutPage() {
 
   useEffect(() => {
     if (isAuthenticated && user) {
+      const addresses = getSavedAddresses();
+      const defaultAddr =
+        addresses.find((a) => a.isDefault)?.address || addresses[0]?.address || "";
       setFormData((prev) => ({
         ...prev,
         name: prev.name || user.name || "",
         email: prev.email || user.email || "",
         phone: prev.phone || user.phone || "",
+        address: prev.address || defaultAddr,
       }));
     }
   }, [isAuthenticated, user]);
@@ -44,6 +49,51 @@ function CheckoutPage() {
   const handleSelarPayment = () => {
     setLoading(true);
 
+    const orderId = `ALN-${Math.floor(10000 + Math.random() * 90000)}`;
+    const trackingNum = `ALN-TRK-${Math.floor(1000000 + Math.random() * 9000000)}`;
+
+    saveOrder({
+      id: orderId,
+      orderDate: "Today, Just now",
+      status: "processing",
+      trackingNumber: trackingNum,
+      deliveryAddress: formData.address || "Plot 14, Admiralty Way, Lekki Phase 1, Lagos",
+      estimatedDelivery: "In 2-3 business days",
+      subtotal: totalPrice,
+      shippingFee: 2500,
+      totalAmount: totalPrice + 2500,
+      courierName: "Ibrahim",
+      courierPhone: "+234 803 123 4567",
+      items: cart.map((i) => ({
+        name: i.product.name,
+        category: i.product.category,
+        quantity: i.quantity,
+        price: Number(i.product.price.replace(/[^0-9]/g, "")),
+        imageUrl: i.product.img,
+      })),
+      timeline: [
+        {
+          title: "Order Placed",
+          subtitle: "Payment initiated via Selar Halal Gateway",
+          date: "Just now",
+          isCompleted: true,
+          isCurrent: true,
+        },
+        {
+          title: "Custom Sizing & Quality Check",
+          subtitle: "Scheduled with Al-Nur Master Tailors",
+          date: "Pending",
+          isCompleted: false,
+        },
+        {
+          title: "Courier Dispatch",
+          subtitle: "Waybill assigned for delivery",
+          date: "Pending",
+          isCompleted: false,
+        },
+      ],
+    });
+
     const savedStoreUrl = localStorage.getItem("alnur_selar_store_url") || DEFAULT_SELAR_URL;
     const itemsSummary = cart.map((i) => `${i.quantity}x ${i.product.name}`).join(", ");
 
@@ -54,7 +104,7 @@ function CheckoutPage() {
     if (formData.phone) url.searchParams.set("phone", formData.phone);
     url.searchParams.set("amount", totalPrice.toString());
     url.searchParams.set("order_summary", itemsSummary);
-    url.searchParams.set("ref", `ALNUR-${Date.now()}`);
+    url.searchParams.set("ref", orderId);
 
     // Redirect to Selar Gateway
     setTimeout(() => {
@@ -75,17 +125,28 @@ function CheckoutPage() {
             <div className="h-20 w-20 rounded-full bg-gold-grad flex items-center justify-center text-primary-foreground mb-6 shadow-lg">
               <CheckCircle2 className="h-10 w-10" />
             </div>
-            <h1 className="font-display text-4xl sm:text-5xl font-bold mb-3 text-foreground">Order Confirmed!</h1>
+            <h1 className="font-display text-4xl sm:text-5xl font-bold mb-3 text-foreground">
+              Order Confirmed!
+            </h1>
             <p className="text-muted-foreground mb-8 text-sm leading-relaxed">
-              Thank you, <span className="text-foreground font-semibold">{formData.name}</span>. 
-              We've received your order for {totalItems} pieces. Our team is preparing your package for delivery.
+              Thank you, <span className="text-foreground font-semibold">{formData.name}</span>.
+              We've received your order for {totalItems} pieces. Our team is preparing your package
+              for delivery.
             </p>
-            <Link
-              to="/"
-              className="rounded-full bg-gold-grad px-8 py-3.5 font-bold text-primary-foreground shadow-gold hover:shadow-glow transition"
-            >
-              Return to Boutique
-            </Link>
+            <div className="flex flex-col sm:flex-row items-center gap-3">
+              <Link
+                to="/orders"
+                className="w-full sm:w-auto rounded-full bg-gold-grad px-8 py-3.5 font-bold text-primary-foreground shadow-gold hover:shadow-glow transition text-center"
+              >
+                Track Order Live
+              </Link>
+              <Link
+                to="/"
+                className="w-full sm:w-auto rounded-full border border-border bg-card px-8 py-3.5 font-bold text-foreground hover:bg-muted/40 transition text-center"
+              >
+                Return to Boutique
+              </Link>
+            </div>
           </motion.div>
         </div>
         <Footer />
@@ -120,18 +181,24 @@ function CheckoutPage() {
               ) : (
                 <div className="space-y-6">
                   {/* Step 1: Contact Info */}
-                  <div className={`space-y-4 p-6 rounded-3xl border border-border bg-card/60 transition-opacity ${
-                    step !== 1 ? "opacity-60 pointer-events-none" : ""
-                  }`}>
+                  <div
+                    className={`space-y-4 p-6 rounded-3xl border border-border bg-card/60 transition-opacity ${
+                      step !== 1 ? "opacity-60 pointer-events-none" : ""
+                    }`}
+                  >
                     <div className="flex items-center gap-3 mb-4">
                       <span className="flex h-7 w-7 items-center justify-center rounded-full bg-primary text-primary-foreground text-xs font-bold">
                         1
                       </span>
-                      <h2 className="text-lg font-bold text-foreground">Customer & Delivery Details</h2>
+                      <h2 className="text-lg font-bold text-foreground">
+                        Customer & Delivery Details
+                      </h2>
                     </div>
                     <div className="grid gap-3.5">
                       <div className="space-y-1">
-                        <label className="text-xs font-semibold text-muted-foreground">Full Name</label>
+                        <label className="text-xs font-semibold text-muted-foreground">
+                          Full Name
+                        </label>
                         <input
                           type="text"
                           name="name"
@@ -144,7 +211,9 @@ function CheckoutPage() {
                       </div>
                       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
                         <div className="space-y-1">
-                          <label className="text-xs font-semibold text-muted-foreground">Email Address</label>
+                          <label className="text-xs font-semibold text-muted-foreground">
+                            Email Address
+                          </label>
                           <input
                             type="email"
                             name="email"
@@ -156,7 +225,9 @@ function CheckoutPage() {
                           />
                         </div>
                         <div className="space-y-1">
-                          <label className="text-xs font-semibold text-muted-foreground">Phone Number (WhatsApp)</label>
+                          <label className="text-xs font-semibold text-muted-foreground">
+                            Phone Number (WhatsApp)
+                          </label>
                           <input
                             type="tel"
                             name="phone"
@@ -169,7 +240,9 @@ function CheckoutPage() {
                         </div>
                       </div>
                       <div className="space-y-1">
-                        <label className="text-xs font-semibold text-muted-foreground">Delivery Address & City</label>
+                        <label className="text-xs font-semibold text-muted-foreground">
+                          Delivery Address & City
+                        </label>
                         <textarea
                           name="address"
                           rows={2}
@@ -200,9 +273,11 @@ function CheckoutPage() {
                   </div>
 
                   {/* Step 2: Selar Gateway Payment */}
-                  <div className={`space-y-4 p-6 rounded-3xl border border-border bg-card/60 transition-opacity ${
-                    step !== 2 ? "opacity-60 pointer-events-none" : ""
-                  }`}>
+                  <div
+                    className={`space-y-4 p-6 rounded-3xl border border-border bg-card/60 transition-opacity ${
+                      step !== 2 ? "opacity-60 pointer-events-none" : ""
+                    }`}
+                  >
                     <div className="flex items-center gap-3 mb-2">
                       <span className="flex h-7 w-7 items-center justify-center rounded-full bg-primary text-primary-foreground text-xs font-bold">
                         2
@@ -214,14 +289,17 @@ function CheckoutPage() {
                       <div className="flex items-center justify-between mb-3">
                         <div className="flex items-center gap-2">
                           <ShieldCheck className="h-5 w-5 text-primary" />
-                          <span className="text-sm font-bold text-foreground">Selar Halal Payment Gateway</span>
+                          <span className="text-sm font-bold text-foreground">
+                            Selar Halal Payment Gateway
+                          </span>
                         </div>
                         <span className="text-[10px] uppercase font-bold text-emerald-600 bg-emerald-100 dark:bg-emerald-950/60 px-2 py-0.5 rounded-full">
                           Active
                         </span>
                       </div>
                       <p className="text-xs text-muted-foreground mb-4 leading-relaxed">
-                        Cards (Mastercard, Visa, Verve), Bank Transfers, and USSD supported securely via your verified Selar merchant account.
+                        Cards (Mastercard, Visa, Verve), Bank Transfers, and USSD supported securely
+                        via your verified Selar merchant account.
                       </p>
 
                       <button
@@ -264,13 +342,20 @@ function CheckoutPage() {
             {/* Right side: Summary */}
             <div className="w-full md:w-[360px]">
               <div className="sticky top-28 rounded-3xl border border-border bg-card p-6 shadow-sm">
-                <h3 className="font-display text-xl font-bold mb-4 text-foreground">Order Summary</h3>
+                <h3 className="font-display text-xl font-bold mb-4 text-foreground">
+                  Order Summary
+                </h3>
                 <div className="space-y-3 mb-5 max-h-[260px] overflow-y-auto pr-1 divide-y divide-border/60">
                   {cart.map((item) => (
-                    <div key={item.product.name} className="pt-2.5 first:pt-0 flex justify-between gap-3 text-xs">
+                    <div
+                      key={item.product.name}
+                      className="pt-2.5 first:pt-0 flex justify-between gap-3 text-xs"
+                    >
                       <div className="flex gap-2 min-w-0">
                         <span className="text-primary font-bold">{item.quantity}x</span>
-                        <span className="truncate font-medium text-foreground">{item.product.name}</span>
+                        <span className="truncate font-medium text-foreground">
+                          {item.product.name}
+                        </span>
                       </div>
                       <span className="font-bold shrink-0">{item.product.price}</span>
                     </div>
@@ -280,7 +365,9 @@ function CheckoutPage() {
                 <div className="border-t border-border pt-4 space-y-2 text-xs">
                   <div className="flex justify-between text-muted-foreground">
                     <span>Subtotal ({totalItems} items)</span>
-                    <span className="font-semibold text-foreground">₦{totalPrice.toLocaleString()}</span>
+                    <span className="font-semibold text-foreground">
+                      ₦{totalPrice.toLocaleString()}
+                    </span>
                   </div>
                   <div className="flex justify-between text-muted-foreground">
                     <span>Shipping</span>

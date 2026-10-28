@@ -6,7 +6,11 @@ interface SocialAuthButtonsProps {
   isLoading?: boolean;
 }
 
-export function SocialAuthButtons({ onGoogleClick, onAppleClick, isLoading }: SocialAuthButtonsProps) {
+export function SocialAuthButtons({
+  onGoogleClick,
+  onAppleClick,
+  isLoading,
+}: SocialAuthButtonsProps) {
   return (
     <div className="w-full">
       {/* Divider */}
@@ -65,4 +69,3 @@ export function SocialAuthButtons({ onGoogleClick, onAppleClick, isLoading }: So
     </div>
   );
 }
-

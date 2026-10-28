@@ -34,7 +34,8 @@ export function WelcomeBanner() {
                 </span>
               </div>
               <p className="text-xs sm:text-sm font-semibold text-foreground/90 truncate mt-0.5">
-                Tap to claim your <span className="text-primary font-bold">ALNUR15</span> voucher & member perks
+                Tap to claim your <span className="text-primary font-bold">ALNUR15</span> voucher &
+                member perks
               </p>
             </div>
           </div>
@@ -64,12 +65,15 @@ export function WelcomeBanner() {
               15% Off Your First Order
             </h3>
             <p className="text-sm text-muted-foreground mt-2 max-w-xs mx-auto">
-              Welcome to the Al-Nur family! Enjoy 15% off across our entire collection of abayas, hijabs, jalabias, and perfumes.
+              Welcome to the Al-Nur family! Enjoy 15% off across our entire collection of abayas,
+              hijabs, jalabias, and perfumes.
             </p>
 
             <div className="mt-6 p-4 rounded-2xl border-2 border-dashed border-primary/40 bg-primary/5 flex items-center justify-between gap-3">
               <div className="text-left">
-                <div className="text-[10px] uppercase tracking-wider text-muted-foreground font-semibold">Voucher Code</div>
+                <div className="text-[10px] uppercase tracking-wider text-muted-foreground font-semibold">
+                  Voucher Code
+                </div>
                 <div className="font-mono text-xl font-bold text-primary">ALNUR15</div>
               </div>
               <button

@@ -11,12 +11,7 @@ export function MosqueLogo({ className = "w-10 h-10", size = 40 }: MosqueLogoPro
       style={{ width: size, height: size }}
       className={`relative flex items-center justify-center rounded-xl bg-primary/10 border border-primary/25 shadow-sm ${className}`}
     >
-      <svg
-        viewBox="0 0 40 40"
-        className="w-7 h-7"
-        fill="none"
-        xmlns="http://www.w3.org/2000/svg"
-      >
+      <svg viewBox="0 0 40 40" className="w-7 h-7" fill="none" xmlns="http://www.w3.org/2000/svg">
         {/* Islamic dome arch */}
         <path
           d="M 6 36 L 6 21 C 6 10 18 5 20 2 C 22 5 34 10 34 21 L 34 36 L 26 36 L 26 26 C 26 20 14 20 14 26 L 14 36 Z"

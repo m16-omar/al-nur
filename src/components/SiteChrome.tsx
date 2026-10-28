@@ -1,15 +1,18 @@
 import { Link } from "@tanstack/react-router";
 import { useState } from "react";
-import { ShoppingCart, Search, Mic, Bell, User, LogOut } from "lucide-react";
+import { ShoppingCart, Search, Mic, Bell, User, LogOut, Heart, Package } from "lucide-react";
 import { ThemeToggle } from "./ThemeToggle";
 import { WHATSAPP, collections } from "@/lib/collections";
 import { useCart } from "@/lib/cart";
 import { useAuth } from "@/lib/auth";
+import { useWishlist } from "@/lib/wishlist";
 import { toast } from "sonner";
 import { CartSheet } from "./CartSheet";
 import { MosqueLogo } from "./MosqueLogo";
 import { SearchModal } from "./SearchModal";
 import { NotificationsModal } from "./NotificationsModal";
+import { WishlistModal } from "./WishlistModal";
+import { GuestPromptModal } from "./GuestPromptModal";
 
 export function Nav() {
   const [open, setOpen] = useState(false);
@@ -17,8 +20,11 @@ export function Nav() {
   const [searchOpen, setSearchOpen] = useState(false);
   const [notifOpen, setNotifOpen] = useState(false);
   const [userMenuOpen, setUserMenuOpen] = useState(false);
+  const [wishlistOpen, setWishlistOpen] = useState(false);
+  const [guestPromptOpen, setGuestPromptOpen] = useState(false);
   const { totalItems } = useCart();
-  const { user, isAuthenticated, logout } = useAuth();
+  const { user, isAuthenticated, isGuest, logout } = useAuth();
+  const { wishlistCount } = useWishlist();
 
   return (
     <>
@@ -87,6 +93,27 @@ export function Nav() {
               <span className="absolute top-1.5 right-1.5 h-2 w-2 rounded-full bg-red-500 animate-pulse" />
             </button>
 
+            {/* Wishlist Button with Badge */}
+            <button
+              onClick={() => {
+                if (isGuest) {
+                  setGuestPromptOpen(true);
+                } else {
+                  setWishlistOpen(true);
+                }
+              }}
+              className="relative p-2 text-foreground/80 hover:text-rose-500 transition-colors rounded-full hover:bg-muted/40"
+              aria-label="Wishlist"
+              title="Modesty Wishlist"
+            >
+              <Heart className="h-5 w-5" />
+              {wishlistCount > 0 && !isGuest && (
+                <span className="absolute top-1 right-1 flex h-4 w-4 items-center justify-center rounded-full bg-rose-500 text-[10px] font-bold text-white shadow-sm">
+                  {wishlistCount}
+                </span>
+              )}
+            </button>
+
             {/* Cart Button */}
             <button
               onClick={() => setCartOpen(true)}
@@ -118,31 +145,61 @@ export function Nav() {
                 </button>
                 {userMenuOpen && (
                   <>
-                    <div
-                      className="fixed inset-0 z-40"
-                      onClick={() => setUserMenuOpen(false)}
-                    />
-                    <div className="absolute right-0 mt-2 w-52 rounded-2xl bg-card border border-border p-2 shadow-2xl z-50 animate-in fade-in zoom-in-95 duration-150">
+                    <div className="fixed inset-0 z-40" onClick={() => setUserMenuOpen(false)} />
+                    <div className="absolute right-0 mt-2 w-56 rounded-2xl bg-card border border-border p-2 shadow-2xl z-50 animate-in fade-in zoom-in-95 duration-150">
                       <div className="px-3 py-2 border-b border-border/60">
-                        <p className="text-xs font-bold text-foreground truncate">
-                          {user.name}
-                        </p>
+                        <p className="text-xs font-bold text-foreground truncate">{user.name}</p>
                         <p className="text-[10px] text-muted-foreground truncate">
                           {user.email || "Al-Nur Member"}
                         </p>
                       </div>
-                      <button
-                        type="button"
-                        onClick={() => {
-                          logout();
-                          setUserMenuOpen(false);
-                          toast.info("Signed out successfully");
-                        }}
-                        className="w-full flex items-center gap-2 px-3 py-2 text-xs text-red-500 hover:bg-red-500/10 rounded-xl transition-colors mt-1 cursor-pointer"
-                      >
-                        <LogOut className="h-3.5 w-3.5" />
-                        <span>Sign Out</span>
-                      </button>
+
+                      <div className="py-1 space-y-0.5">
+                        <Link
+                          to="/profile"
+                          onClick={() => setUserMenuOpen(false)}
+                          className="flex items-center gap-2.5 px-3 py-2 text-xs font-medium text-foreground hover:bg-muted/50 rounded-xl transition-colors"
+                        >
+                          <User className="h-3.5 w-3.5 text-primary" />
+                          <span>My Profile & Settings</span>
+                        </Link>
+
+                        <Link
+                          to="/orders"
+                          onClick={() => setUserMenuOpen(false)}
+                          className="flex items-center gap-2.5 px-3 py-2 text-xs font-medium text-foreground hover:bg-muted/50 rounded-xl transition-colors"
+                        >
+                          <Package className="h-3.5 w-3.5 text-primary" />
+                          <span>My Modesty Orders</span>
+                        </Link>
+
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setUserMenuOpen(false);
+                            setWishlistOpen(true);
+                          }}
+                          className="w-full flex items-center gap-2.5 px-3 py-2 text-xs font-medium text-foreground hover:bg-muted/50 rounded-xl transition-colors text-left"
+                        >
+                          <Heart className="h-3.5 w-3.5 text-rose-500" />
+                          <span>My Wishlist ({wishlistCount})</span>
+                        </button>
+                      </div>
+
+                      <div className="pt-1 border-t border-border/60">
+                        <button
+                          type="button"
+                          onClick={() => {
+                            logout();
+                            setUserMenuOpen(false);
+                            toast.info("Signed out successfully");
+                          }}
+                          className="w-full flex items-center gap-2 px-3 py-2 text-xs text-rose-500 hover:bg-rose-500/10 rounded-xl transition-colors cursor-pointer"
+                        >
+                          <LogOut className="h-3.5 w-3.5" />
+                          <span>Sign Out</span>
+                        </button>
+                      </div>
                     </div>
                   </>
                 )}
@@ -173,7 +230,14 @@ export function Nav() {
               className="md:hidden text-foreground p-2 rounded-lg hover:bg-muted/40"
               aria-label="Menu"
             >
-              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <svg
+                width="22"
+                height="22"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+              >
                 {open ? <path d="M6 6L18 18M6 18L18 6" /> : <path d="M3 6h18M3 12h18M3 18h18" />}
               </svg>
             </button>
@@ -183,7 +247,11 @@ export function Nav() {
         {/* Mobile dropdown menu */}
         {open && (
           <div className="md:hidden border-t border-border bg-background/95 px-6 py-4 flex flex-col gap-3 animate-in slide-in-from-top-2 duration-150">
-            <Link to="/" onClick={() => setOpen(false)} className="text-sm py-1 font-semibold text-primary">
+            <Link
+              to="/"
+              onClick={() => setOpen(false)}
+              className="text-sm py-1 font-semibold text-primary"
+            >
               Home
             </Link>
             {collections.map((c) => (
@@ -261,6 +329,17 @@ export function Nav() {
 
       {/* Notifications Modal */}
       {notifOpen && <NotificationsModal onClose={() => setNotifOpen(false)} />}
+
+      {/* Wishlist Modal */}
+      <WishlistModal isOpen={wishlistOpen} onClose={() => setWishlistOpen(false)} />
+
+      {/* Guest Prompt Modal for Wishlist */}
+      <GuestPromptModal
+        isOpen={guestPromptOpen}
+        onClose={() => setGuestPromptOpen(false)}
+        title="Modesty Wishlist"
+        message="Sign in or create an account to view and sync your favorited modest couture across all your devices."
+      />
     </>
   );
 }
@@ -290,7 +369,9 @@ export function Footer() {
         </div>
         <div className="text-xs text-muted-foreground/80 max-w-md mx-auto leading-relaxed">
           <p>© {new Date().getFullYear()} Al-Nur Store. All rights reserved.</p>
-          <p className="mt-1 text-[11px]">Fast nationwide delivery across all 36 states · Free delivery within Lagos.</p>
+          <p className="mt-1 text-[11px]">
+            Fast nationwide delivery across all 36 states · Free delivery within Lagos.
+          </p>
         </div>
       </div>
     </footer>

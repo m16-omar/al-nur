@@ -8,7 +8,11 @@ interface ForgotPasswordModalProps {
   defaultEmail?: string;
 }
 
-export function ForgotPasswordModal({ isOpen, onClose, defaultEmail = "" }: ForgotPasswordModalProps) {
+export function ForgotPasswordModal({
+  isOpen,
+  onClose,
+  defaultEmail = "",
+}: ForgotPasswordModalProps) {
   const [email, setEmail] = useState(defaultEmail);
   const [loading, setLoading] = useState(false);
   const [submitted, setSubmitted] = useState(false);
@@ -102,7 +106,8 @@ export function ForgotPasswordModal({ isOpen, onClose, defaultEmail = "" }: Forg
             <h3 className="text-lg font-bold text-foreground">Reset Email Sent!</h3>
             <p className="mt-2 text-xs text-muted-foreground max-w-xs mx-auto">
               We've dispatched recovery instructions to{" "}
-              <span className="font-semibold text-foreground">{email}</span>. Please check your inbox and spam folder.
+              <span className="font-semibold text-foreground">{email}</span>. Please check your
+              inbox and spam folder.
             </p>
             <button
               onClick={handleDone}
@@ -116,4 +121,3 @@ export function ForgotPasswordModal({ isOpen, onClose, defaultEmail = "" }: Forg
     </div>
   );
 }
-

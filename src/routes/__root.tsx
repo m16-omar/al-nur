@@ -1,13 +1,9 @@
 import { QueryClient } from "@tanstack/react-query";
-import {
-  Outlet,
-  Link,
-  createRootRouteWithContext,
-  useRouter,
-} from "@tanstack/react-router";
+import { Outlet, Link, createRootRouteWithContext, useRouter } from "@tanstack/react-router";
 import { Toaster } from "sonner";
 import { CartProvider } from "@/lib/cart";
 import { AuthProvider } from "@/lib/auth";
+import { WishlistProvider } from "@/lib/wishlist";
 
 function NotFoundComponent() {
   return (
@@ -60,10 +56,12 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
 function RootComponent() {
   return (
     <AuthProvider>
-      <CartProvider>
-        <Toaster richColors position="top-center" />
-        <Outlet />
-      </CartProvider>
+      <WishlistProvider>
+        <CartProvider>
+          <Toaster richColors position="top-center" />
+          <Outlet />
+        </CartProvider>
+      </WishlistProvider>
     </AuthProvider>
   );
 }

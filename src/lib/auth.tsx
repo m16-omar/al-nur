@@ -18,8 +18,17 @@ interface AuthContextType {
   isAuthenticated: boolean;
   isGuest: boolean;
   savedUser: SavedUser | null;
-  login: (email: string, password: string, rememberMe?: boolean) => Promise<{ success: boolean; error?: string }>;
-  signUp: (data: { name: string; email: string; phone?: string; password: string }) => Promise<{ success: boolean; error?: string }>;
+  login: (
+    email: string,
+    password: string,
+    rememberMe?: boolean,
+  ) => Promise<{ success: boolean; error?: string }>;
+  signUp: (data: {
+    name: string;
+    email: string;
+    phone?: string;
+    password: string;
+  }) => Promise<{ success: boolean; error?: string }>;
   continueAsGuest: () => void;
   logout: () => void;
   clearSavedUser: () => void;
@@ -88,7 +97,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const login = async (
     email: string,
     password: string,
-    rememberMe: boolean = true
+    rememberMe: boolean = true,
   ): Promise<{ success: boolean; error?: string }> => {
     const cleanEmail = email.trim();
     const cleanPassword = password.trim();
@@ -244,4 +253,3 @@ export function useAuth() {
   }
   return context;
 }
-

@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { Search, Mic, X, ShoppingBag } from "lucide-react";
+import { Link } from "@tanstack/react-router";
 import { featuredProducts, Product } from "@/lib/collections";
 import { useCart } from "@/lib/cart";
 import { toast } from "sonner";
@@ -28,7 +29,7 @@ export function SearchModal({ onClose }: SearchModalProps) {
         (p) =>
           p.name.toLowerCase().includes(query.toLowerCase()) ||
           p.blurb.toLowerCase().includes(query.toLowerCase()) ||
-          p.category.toLowerCase().includes(query.toLowerCase())
+          p.category.toLowerCase().includes(query.toLowerCase()),
       )
     : featuredProducts.slice(0, 4);
 
@@ -50,7 +51,9 @@ export function SearchModal({ onClose }: SearchModalProps) {
             <button
               onClick={handleVoiceSearch}
               className={`h-8 w-8 rounded-full flex items-center justify-center transition-all ${
-                isListening ? "bg-red-500 text-white animate-pulse" : "bg-primary/10 text-primary hover:bg-primary/20"
+                isListening
+                  ? "bg-red-500 text-white animate-pulse"
+                  : "bg-primary/10 text-primary hover:bg-primary/20"
               }`}
               title="Voice Search"
             >
@@ -88,17 +91,24 @@ export function SearchModal({ onClose }: SearchModalProps) {
           ) : (
             results.map((p) => (
               <div key={p.id} className="pt-2.5 first:pt-0 flex items-center justify-between gap-3">
-                <div className="flex items-center gap-3 min-w-0">
+                <Link
+                  to="/product/$id"
+                  params={{ id: p.id }}
+                  onClick={onClose}
+                  className="flex items-center gap-3 min-w-0 flex-1 hover:opacity-80 transition-opacity"
+                >
                   <img
                     src={p.img}
                     alt={p.name}
                     className="h-12 w-12 rounded-xl object-cover shrink-0 border border-border/60"
                   />
                   <div className="min-w-0">
-                    <h4 className="text-sm font-semibold truncate">{p.name}</h4>
+                    <h4 className="text-sm font-semibold truncate hover:text-primary transition-colors">
+                      {p.name}
+                    </h4>
                     <p className="text-xs font-bold text-primary">{p.price}</p>
                   </div>
-                </div>
+                </Link>
                 <button
                   onClick={() => {
                     addToCart(p);

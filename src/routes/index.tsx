@@ -21,13 +21,16 @@ function CollectionsShowcase() {
       <div className="mx-auto max-w-7xl">
         <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-6 mb-12 sm:mb-16">
           <div>
-            <div className="text-xs uppercase tracking-[0.3em] text-primary mb-2 font-bold">Collections</div>
+            <div className="text-xs uppercase tracking-[0.3em] text-primary mb-2 font-bold">
+              Collections
+            </div>
             <h2 className="font-display text-4xl sm:text-5xl font-bold max-w-xl text-foreground">
               Five quiet expressions of <span className="italic text-gold-grad">grace</span>
             </h2>
           </div>
           <p className="max-w-sm text-sm text-muted-foreground">
-            Every piece chosen by hand, every order packed with care. Tap any collection to explore our signature catalogue.
+            Every piece chosen by hand, every order packed with care. Tap any collection to explore
+            our signature catalogue.
           </p>
         </div>
 
@@ -62,11 +65,20 @@ function CollectionsShowcase() {
                 <div className="text-xs uppercase tracking-[0.25em] text-primary font-bold mb-1.5">
                   0{i + 1}
                 </div>
-                <h3 className="font-display text-2xl sm:text-3xl font-bold mb-1 text-foreground">{c.name}</h3>
+                <h3 className="font-display text-2xl sm:text-3xl font-bold mb-1 text-foreground">
+                  {c.name}
+                </h3>
                 <p className="text-xs sm:text-sm text-muted-foreground max-w-xs">{c.tagline}</p>
                 <div className="mt-3 inline-flex items-center gap-2 text-xs font-bold text-primary opacity-0 group-hover:opacity-100 transition-opacity">
                   <span>Explore Collection</span>
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <svg
+                    width="14"
+                    height="14"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                  >
                     <path d="M5 12h14M13 6l6 6-6 6" />
                   </svg>
                 </div>
@@ -84,21 +96,33 @@ function Story() {
     <section id="story" className="relative py-20 sm:py-28 px-4 sm:px-6 overflow-hidden">
       <div className="absolute inset-0 arabesque opacity-30 pointer-events-none" />
       <div className="relative mx-auto max-w-5xl text-center">
-        <div className="text-xs uppercase tracking-[0.3em] text-primary font-bold mb-4">Our Heritage</div>
+        <div className="text-xs uppercase tracking-[0.3em] text-primary font-bold mb-4">
+          Our Heritage
+        </div>
         <h2 className="font-display text-4xl sm:text-6xl font-bold leading-tight">
           With our curated pieces we elevate <br />
           <span className="italic text-gold-grad">your special occasions</span>
         </h2>
         <p className="mt-6 sm:mt-8 text-base sm:text-lg text-muted-foreground max-w-2xl mx-auto leading-relaxed">
-          From modest abayas and pure Medina silks to royal Moroccan jalabias and heirloom gold bridal sets,
-          every piece at Al-Nur is crafted to make you shine with dignity, modesty, and confidence.
+          From modest abayas and pure Medina silks to royal Moroccan jalabias and heirloom gold
+          bridal sets, every piece at Al-Nur is crafted to make you shine with dignity, modesty, and
+          confidence.
         </p>
 
         <div className="mt-12 sm:mt-16 grid grid-cols-1 md:grid-cols-3 gap-6">
           {[
-            { title: "Wedding & Nikkah", body: "Bridal sets and embellished abayas curated for the most sacred day." },
-            { title: "Ramadan & Eid Celebrations", body: "Festive jalabias and pure silk hijabs wrapped with heartfelt intention." },
-            { title: "Everyday Modesty", body: "Featherlight fabrics and timeless silhouettes woven into your daily life." },
+            {
+              title: "Wedding & Nikkah",
+              body: "Bridal sets and embellished abayas curated for the most sacred day.",
+            },
+            {
+              title: "Ramadan & Eid Celebrations",
+              body: "Festive jalabias and pure silk hijabs wrapped with heartfelt intention.",
+            },
+            {
+              title: "Everyday Modesty",
+              body: "Featherlight fabrics and timeless silhouettes woven into your daily life.",
+            },
           ].map((it, i) => (
             <motion.div
               key={it.title}
@@ -133,14 +157,16 @@ function Why() {
     <section id="why" className="relative py-16 sm:py-24 px-4 sm:px-6 bg-card/30">
       <div className="mx-auto max-w-7xl grid md:grid-cols-2 gap-12 sm:gap-16 items-center">
         <div>
-          <div className="text-xs uppercase tracking-[0.3em] text-primary font-bold mb-3">Why Al-Nur</div>
+          <div className="text-xs uppercase tracking-[0.3em] text-primary font-bold mb-3">
+            Why Al-Nur
+          </div>
           <h2 className="font-display text-4xl sm:text-5xl font-bold leading-tight">
             Because every woman <br />
             <span className="italic text-gold-grad">deserves to shine with grace.</span>
           </h2>
           <p className="mt-4 text-sm sm:text-base text-muted-foreground max-w-md leading-relaxed">
-            We don't merely offer fashion — we curate moments of quiet luxury, delivered to your door
-            with warmth, care, and attention to every stitch.
+            We don't merely offer fashion — we curate moments of quiet luxury, delivered to your
+            door with warmth, care, and attention to every stitch.
           </p>
         </div>
         <ul className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
@@ -172,12 +198,15 @@ function Contact() {
         <div className="relative overflow-hidden rounded-[2.5rem] border border-primary/30 bg-gradient-to-br from-[#3A1208] via-[#4A1A0C] to-[#200B04] p-8 sm:p-14 text-center shadow-2xl text-white">
           <div className="absolute inset-0 arabesque opacity-20 pointer-events-none" />
           <div className="relative z-10">
-            <div className="text-xs uppercase tracking-[0.3em] text-amber-300 font-bold mb-3">Contact Our Boutique</div>
+            <div className="text-xs uppercase tracking-[0.3em] text-amber-300 font-bold mb-3">
+              Contact Our Boutique
+            </div>
             <h2 className="font-display text-3xl sm:text-5xl md:text-6xl font-bold text-white">
               Begin your <span className="italic text-amber-300">Al-Nur</span> moment
             </h2>
             <p className="mt-4 text-xs sm:text-sm text-amber-100/80 max-w-lg mx-auto leading-relaxed">
-              We deliver nationwide. Reach our concierge anytime — we would love to assist you with custom orders, bridal sizing, or styling advice.
+              We deliver nationwide. Reach our concierge anytime — we would love to assist you with
+              custom orders, bridal sizing, or styling advice.
             </p>
 
             <div className="mt-8 sm:mt-10 flex flex-col sm:flex-row gap-3.5 justify-center">

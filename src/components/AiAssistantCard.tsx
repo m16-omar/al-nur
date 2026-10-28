@@ -1,5 +1,6 @@
 import React, { useState } from "react";
-import { Bot, Sparkles, Send, X, ArrowRight, CheckCircle2 } from "lucide-react";
+import { Bot, Sparkles, Send, X, ArrowRight, CheckCircle2, ExternalLink } from "lucide-react";
+import { Link } from "@tanstack/react-router";
 import { WHATSAPP } from "@/lib/collections";
 
 export function AiAssistantCard() {
@@ -11,7 +12,9 @@ export function AiAssistantCard() {
         <div className="relative overflow-hidden rounded-3xl border border-primary/30 bg-gradient-to-r from-[#3A1208] via-[#4A1A0C] to-[#5A1C0C] p-6 sm:p-10 shadow-2xl text-white">
           {/* Subtle animated sparkles */}
           <div className="absolute top-4 right-10 text-amber-200/40 animate-pulse text-lg">✦</div>
-          <div className="absolute bottom-6 right-24 text-amber-200/30 animate-pulse text-2xl delay-300">✦</div>
+          <div className="absolute bottom-6 right-24 text-amber-200/30 animate-pulse text-2xl delay-300">
+            ✦
+          </div>
           <div className="absolute top-1/2 right-1/3 text-amber-200/20 text-sm">✨</div>
 
           <div className="relative z-10 flex flex-col md:flex-row items-center justify-between gap-6">
@@ -25,7 +28,9 @@ export function AiAssistantCard() {
                       <div className="w-2 h-2 rounded-full bg-[#3A1208] animate-ping" />
                       <div className="w-2 h-2 rounded-full bg-[#3A1208]" />
                     </div>
-                    <span className="text-[10px] uppercase font-bold tracking-widest text-amber-300 mt-2">Al-Nur AI</span>
+                    <span className="text-[10px] uppercase font-bold tracking-widest text-amber-300 mt-2">
+                      Al-Nur AI
+                    </span>
                   </div>
                 </div>
                 <div className="absolute -bottom-1 -right-1 h-6 w-6 rounded-full bg-emerald-500 border-2 border-[#3A1208] flex items-center justify-center text-[10px]">
@@ -42,7 +47,8 @@ export function AiAssistantCard() {
                   Need help finding the perfect outfit?
                 </h3>
                 <p className="text-xs sm:text-sm text-amber-100/80 mt-1.5 max-w-lg leading-relaxed">
-                  Tell me what you're looking for — I'll match your style, occasion, and budget across all our luxury modest collections.
+                  Tell me what you're looking for — I'll match your style, occasion, and budget
+                  across all our luxury modest collections.
                 </p>
               </div>
             </div>
@@ -92,13 +98,17 @@ function AiChatModal({ onClose }: { onClose: () => void }) {
       const lower = text.toLowerCase();
 
       if (lower.includes("nikkah") || lower.includes("wedding") || lower.includes("bridal")) {
-        reply = "For a Nikkah celebration, I recommend our 'Aisha 24K Bridal Set' (₦55,000) paired with the 'Champagne Silk Bisht Abaya' (₦32,000) and 'Bridal Attar' (₦25,000). Would you like to order this curated ensemble directly via WhatsApp concierge?";
+        reply =
+          "For a Nikkah celebration, I recommend our 'Aisha 24K Bridal Set' (₦55,000) paired with the 'Champagne Silk Bisht Abaya' (₦32,000) and 'Bridal Attar' (₦25,000). Would you like to order this curated ensemble directly via WhatsApp concierge?";
       } else if (lower.includes("hijab") || lower.includes("silk")) {
-        reply = "Our 'Pure Medina Silk Hijab' (₦8,500) is hand-selected from Medina — featherlight, 100% opaque, and pairs exquisitely with all neutral abayas. We have it in Rose, Ivory, Espresso, and Desert Gold.";
+        reply =
+          "Our 'Pure Medina Silk Hijab' (₦8,500) is hand-selected from Medina — featherlight, 100% opaque, and pairs exquisitely with all neutral abayas. We have it in Rose, Ivory, Espresso, and Desert Gold.";
       } else if (lower.includes("perfume") || lower.includes("oud")) {
-        reply = "Our signature 'Royal Oud Attar' (₦18,000) features Cambodian agarwood softened with warm Bourbon vanilla. It lasts over 18 hours on prayer garbs and silks.";
+        reply =
+          "Our signature 'Royal Oud Attar' (₦18,000) features Cambodian agarwood softened with warm Bourbon vanilla. It lasts over 18 hours on prayer garbs and silks.";
       } else {
-        reply = "We have exquisite hand-picked pieces in stock! Our 'Dubai Gold Noir Abaya' (₦28,500) and 'Zahra Bangles' (₦22,000) are currently our top customer favorites. You can also chat directly with our Lagos boutique concierge on WhatsApp!";
+        reply =
+          "We have exquisite hand-picked pieces in stock! Our 'Dubai Gold Noir Abaya' (₦28,500) and 'Zahra Bangles' (₦22,000) are currently our top customer favorites. You can also chat directly with our Lagos boutique concierge on WhatsApp!";
       }
 
       setMessages((prev) => [...prev, { role: "assistant", text: reply }]);
@@ -145,7 +155,55 @@ function AiChatModal({ onClose }: { onClose: () => void }) {
                     : "bg-card border border-border text-foreground rounded-tl-none shadow-sm"
                 }`}
               >
-                {m.text}
+                <div>{m.text}</div>
+                {m.role === "assistant" && (
+                  <div className="mt-2 pt-2 border-t border-border/50 flex flex-wrap gap-1.5">
+                    {m.text.includes("Dubai Gold Noir") && (
+                      <Link
+                        to="/product/$id"
+                        params={{ id: "feat_1" }}
+                        onClick={onClose}
+                        className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-primary/10 hover:bg-primary/20 text-primary text-[11px] font-bold transition-colors"
+                      >
+                        <span>View Dubai Abaya</span>
+                        <ExternalLink className="h-3 w-3" />
+                      </Link>
+                    )}
+                    {m.text.includes("Aisha 24K Bridal") && (
+                      <Link
+                        to="/product/$id"
+                        params={{ id: "feat_5" }}
+                        onClick={onClose}
+                        className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-primary/10 hover:bg-primary/20 text-primary text-[11px] font-bold transition-colors"
+                      >
+                        <span>View Aisha Bridal Set</span>
+                        <ExternalLink className="h-3 w-3" />
+                      </Link>
+                    )}
+                    {m.text.includes("Pure Medina Silk") && (
+                      <Link
+                        to="/product/$id"
+                        params={{ id: "feat_2" }}
+                        onClick={onClose}
+                        className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-primary/10 hover:bg-primary/20 text-primary text-[11px] font-bold transition-colors"
+                      >
+                        <span>View Silk Hijab</span>
+                        <ExternalLink className="h-3 w-3" />
+                      </Link>
+                    )}
+                    {m.text.includes("Royal Oud") && (
+                      <Link
+                        to="/product/$id"
+                        params={{ id: "feat_6" }}
+                        onClick={onClose}
+                        className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-primary/10 hover:bg-primary/20 text-primary text-[11px] font-bold transition-colors"
+                      >
+                        <span>View Royal Oud</span>
+                        <ExternalLink className="h-3 w-3" />
+                      </Link>
+                    )}
+                  </div>
+                )}
               </div>
             </div>
           ))}

@@ -16,7 +16,8 @@ const slides = [
   {
     tag: "RAMADAN & EID",
     title: "Pure Medina Silk Hijabs",
-    subtitle: "Breathable. Graceful. Pure. Featherlight silk in soft tones designed to drape like poetry.",
+    subtitle:
+      "Breathable. Graceful. Pure. Featherlight silk in soft tones designed to drape like poetry.",
     cta: "Explore Hijabs →",
     link: "#featured-products",
     img: "https://images.unsplash.com/photo-1585829365295-ab7cd400c167?auto=format&fit=crop&w=1200&q=80",
@@ -134,7 +135,7 @@ export function HeroCarousel() {
           >
             <ChevronLeft className="h-4 w-4" />
           </button>
-          
+
           <div className="flex items-center gap-1.5">
             {slides.map((_, i) => (
               <button
@@ -142,7 +143,9 @@ export function HeroCarousel() {
                 onClick={() => setCurrent(i)}
                 aria-label={`Go to slide ${i + 1}`}
                 className={`h-2 rounded-full transition-all ${
-                  i === current ? "w-7 bg-primary" : "w-2 bg-muted-foreground/40 hover:bg-muted-foreground"
+                  i === current
+                    ? "w-7 bg-primary"
+                    : "w-2 bg-muted-foreground/40 hover:bg-muted-foreground"
                 }`}
               />
             ))}

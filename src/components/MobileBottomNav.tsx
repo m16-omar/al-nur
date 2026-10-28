@@ -10,7 +10,11 @@ interface MobileBottomNavProps {
   onSelectCategorySection: () => void;
 }
 
-export function MobileBottomNav({ onOpenCart, onOpenAi, onSelectCategorySection }: MobileBottomNavProps) {
+export function MobileBottomNav({
+  onOpenCart,
+  onOpenAi,
+  onSelectCategorySection,
+}: MobileBottomNavProps) {
   const { totalItems } = useCart();
   const { user, isAuthenticated } = useAuth();
 
@@ -63,7 +67,7 @@ export function MobileBottomNav({ onOpenCart, onOpenAi, onSelectCategorySection 
 
         {/* Profile / Account */}
         <Link
-          to="/login"
+          to={isAuthenticated ? "/profile" : "/login"}
           className="flex flex-col items-center gap-1 text-muted-foreground hover:text-primary transition-colors p-1.5"
         >
           <div className="relative">

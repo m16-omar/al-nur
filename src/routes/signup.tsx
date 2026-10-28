@@ -169,11 +169,7 @@ function SignUpPage() {
                     onClick={() => setObscurePassword(!obscurePassword)}
                     className="absolute right-3.5 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground p-1 transition-colors"
                   >
-                    {obscurePassword ? (
-                      <EyeOff className="h-4 w-4" />
-                    ) : (
-                      <Eye className="h-4 w-4" />
-                    )}
+                    {obscurePassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                   </button>
                 </div>
               </div>
@@ -305,4 +301,3 @@ function SignUpPage() {
     </div>
   );
 }
-

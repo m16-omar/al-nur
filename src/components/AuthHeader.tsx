@@ -30,9 +30,7 @@ export function AuthHeader({ title, subtitle }: AuthHeaderProps) {
 
       {/* Brand Title */}
       <div className="mt-5 flex items-center justify-center gap-1.5">
-        <span className="font-display text-2xl font-bold tracking-tight text-primary">
-          Al-Nur
-        </span>
+        <span className="font-display text-2xl font-bold tracking-tight text-primary">Al-Nur</span>
         <span className="text-xs font-semibold uppercase tracking-[0.25em] text-[#D4AF37]">
           STORE
         </span>
@@ -50,4 +48,3 @@ export function AuthHeader({ title, subtitle }: AuthHeaderProps) {
     </div>
   );
 }
-

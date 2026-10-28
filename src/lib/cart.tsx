@@ -43,9 +43,7 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
       const existing = prev.find((item) => item.product.name === product.name);
       if (existing) {
         return prev.map((item) =>
-          item.product.name === product.name
-            ? { ...item, quantity: item.quantity + 1 }
-            : item
+          item.product.name === product.name ? { ...item, quantity: item.quantity + 1 } : item,
         );
       }
       return [...prev, { product, quantity: 1 }];
@@ -62,16 +60,14 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
       return;
     }
     setCart((prev) =>
-      prev.map((item) =>
-        item.product.name === productName ? { ...item, quantity } : item
-      )
+      prev.map((item) => (item.product.name === productName ? { ...item, quantity } : item)),
     );
   };
 
   const clearCart = () => setCart([]);
 
   const totalItems = cart.reduce((acc, item) => acc + item.quantity, 0);
-  
+
   const totalPrice = cart.reduce((acc, item) => {
     const priceStr = item.product.price.replace(/[^\d]/g, "");
     const price = parseInt(priceStr, 10) || 0;

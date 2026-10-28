@@ -13,4 +13,3 @@ function SignUpRedirect() {
 
   return null;
 }
-
