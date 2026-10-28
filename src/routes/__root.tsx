@@ -7,6 +7,7 @@ import {
 } from "@tanstack/react-router";
 import { Toaster } from "sonner";
 import { CartProvider } from "@/lib/cart";
+import { AuthProvider } from "@/lib/auth";
 
 function NotFoundComponent() {
   return (
@@ -58,9 +59,11 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
 
 function RootComponent() {
   return (
-    <CartProvider>
-      <Toaster richColors position="top-center" />
-      <Outlet />
-    </CartProvider>
+    <AuthProvider>
+      <CartProvider>
+        <Toaster richColors position="top-center" />
+        <Outlet />
+      </CartProvider>
+    </AuthProvider>
   );
 }

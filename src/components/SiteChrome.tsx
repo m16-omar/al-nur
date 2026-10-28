@@ -1,9 +1,11 @@
 import { Link } from "@tanstack/react-router";
 import { useState } from "react";
-import { ShoppingCart, Search, Mic, Bell } from "lucide-react";
+import { ShoppingCart, Search, Mic, Bell, User, LogOut } from "lucide-react";
 import { ThemeToggle } from "./ThemeToggle";
 import { WHATSAPP, collections } from "@/lib/collections";
 import { useCart } from "@/lib/cart";
+import { useAuth } from "@/lib/auth";
+import { toast } from "sonner";
 import { CartSheet } from "./CartSheet";
 import { MosqueLogo } from "./MosqueLogo";
 import { SearchModal } from "./SearchModal";
@@ -14,7 +16,9 @@ export function Nav() {
   const [cartOpen, setCartOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
   const [notifOpen, setNotifOpen] = useState(false);
+  const [userMenuOpen, setUserMenuOpen] = useState(false);
   const { totalItems } = useCart();
+  const { user, isAuthenticated, logout } = useAuth();
 
   return (
     <>
@@ -99,6 +103,60 @@ export function Nav() {
 
             <ThemeToggle />
 
+            {/* User Profile or Sign In */}
+            {isAuthenticated && user ? (
+              <div className="relative">
+                <button
+                  type="button"
+                  onClick={() => setUserMenuOpen(!userMenuOpen)}
+                  className="flex items-center gap-1.5 p-1 rounded-full hover:bg-muted/40 transition-colors"
+                  title={user.name}
+                >
+                  <div className="h-8 w-8 rounded-full bg-primary/20 border border-primary/50 text-primary flex items-center justify-center text-xs font-bold shadow-sm">
+                    {user.name.charAt(0).toUpperCase()}
+                  </div>
+                </button>
+                {userMenuOpen && (
+                  <>
+                    <div
+                      className="fixed inset-0 z-40"
+                      onClick={() => setUserMenuOpen(false)}
+                    />
+                    <div className="absolute right-0 mt-2 w-52 rounded-2xl bg-card border border-border p-2 shadow-2xl z-50 animate-in fade-in zoom-in-95 duration-150">
+                      <div className="px-3 py-2 border-b border-border/60">
+                        <p className="text-xs font-bold text-foreground truncate">
+                          {user.name}
+                        </p>
+                        <p className="text-[10px] text-muted-foreground truncate">
+                          {user.email || "Al-Nur Member"}
+                        </p>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          logout();
+                          setUserMenuOpen(false);
+                          toast.info("Signed out successfully");
+                        }}
+                        className="w-full flex items-center gap-2 px-3 py-2 text-xs text-red-500 hover:bg-red-500/10 rounded-xl transition-colors mt-1 cursor-pointer"
+                      >
+                        <LogOut className="h-3.5 w-3.5" />
+                        <span>Sign Out</span>
+                      </button>
+                    </div>
+                  </>
+                )}
+              </div>
+            ) : (
+              <Link
+                to="/login"
+                className="hidden sm:inline-flex items-center gap-1.5 rounded-full border border-primary/40 bg-primary/5 hover:bg-primary/15 px-3.5 py-1.5 text-xs font-semibold text-primary transition-all shadow-sm"
+              >
+                <User className="h-3.5 w-3.5" />
+                <span>Sign In</span>
+              </Link>
+            )}
+
             {/* WhatsApp CTA Button */}
             <a
               href={WHATSAPP}
@@ -147,6 +205,50 @@ export function Nav() {
             >
               Order on WhatsApp
             </a>
+
+            {/* Mobile Auth Actions */}
+            <div className="pt-3 mt-1 border-t border-border/80">
+              {isAuthenticated && user ? (
+                <div className="flex items-center justify-between">
+                  <div className="flex flex-col">
+                    <span className="text-xs font-bold text-foreground">
+                      Assalamu Alaikum, {user.name}
+                    </span>
+                    <span className="text-[10px] text-muted-foreground truncate max-w-[180px]">
+                      {user.email || "Al-Nur Member"}
+                    </span>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      logout();
+                      setOpen(false);
+                      toast.info("Signed out");
+                    }}
+                    className="text-xs font-semibold text-red-500 hover:underline p-1"
+                  >
+                    Sign Out
+                  </button>
+                </div>
+              ) : (
+                <div className="grid grid-cols-2 gap-2">
+                  <Link
+                    to="/login"
+                    onClick={() => setOpen(false)}
+                    className="text-center py-2 px-3 rounded-xl border border-primary/40 text-primary text-xs font-bold hover:bg-primary/10 transition-colors"
+                  >
+                    Sign In
+                  </Link>
+                  <Link
+                    to="/signup"
+                    onClick={() => setOpen(false)}
+                    className="text-center py-2 px-3 rounded-xl bg-gold-grad text-primary-foreground text-xs font-bold shadow-sm"
+                  >
+                    Sign Up
+                  </Link>
+                </div>
+              )}
+            </div>
           </div>
         )}
       </header>

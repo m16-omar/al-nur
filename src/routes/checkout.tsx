@@ -1,6 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useCart } from "@/lib/cart";
+import { useAuth } from "@/lib/auth";
 import { Nav, Footer } from "@/components/SiteChrome";
 import { motion } from "framer-motion";
 import { CheckCircle2, ChevronRight, Lock, ExternalLink, ShieldCheck } from "lucide-react";
@@ -14,6 +15,7 @@ const DEFAULT_SELAR_URL = "https://selar.com/m/fatima-muhammad3397104";
 
 function CheckoutPage() {
   const { cart, totalPrice, totalItems, clearCart } = useCart();
+  const { user, isAuthenticated } = useAuth();
   const [step, setStep] = useState(1);
   const [formData, setFormData] = useState({
     name: "",
@@ -21,6 +23,17 @@ function CheckoutPage() {
     phone: "",
     address: "",
   });
+
+  useEffect(() => {
+    if (isAuthenticated && user) {
+      setFormData((prev) => ({
+        ...prev,
+        name: prev.name || user.name || "",
+        email: prev.email || user.email || "",
+        phone: prev.phone || user.phone || "",
+      }));
+    }
+  }, [isAuthenticated, user]);
   const [loading, setLoading] = useState(false);
   const [completed, setCompleted] = useState(false);
 

@@ -1,7 +1,8 @@
 import React from "react";
-import { Home, LayoutGrid, Sparkles, ShoppingBag, MessageCircle } from "lucide-react";
+import { Home, LayoutGrid, Sparkles, ShoppingBag, User } from "lucide-react";
+import { Link } from "@tanstack/react-router";
 import { useCart } from "@/lib/cart";
-import { WHATSAPP } from "@/lib/collections";
+import { useAuth } from "@/lib/auth";
 
 interface MobileBottomNavProps {
   onOpenCart: () => void;
@@ -11,6 +12,7 @@ interface MobileBottomNavProps {
 
 export function MobileBottomNav({ onOpenCart, onOpenAi, onSelectCategorySection }: MobileBottomNavProps) {
   const { totalItems } = useCart();
+  const { user, isAuthenticated } = useAuth();
 
   return (
     <div className="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-card/95 backdrop-blur-lg border-t border-border/80 px-4 py-2 pb-safe shadow-[0_-8px_20px_rgba(0,0,0,0.08)]">
@@ -59,16 +61,21 @@ export function MobileBottomNav({ onOpenCart, onOpenAi, onSelectCategorySection 
           <span className="text-[10px] font-medium">Cart</span>
         </button>
 
-        {/* WhatsApp */}
-        <a
-          href={WHATSAPP}
-          target="_blank"
-          rel="noreferrer"
+        {/* Profile / Account */}
+        <Link
+          to="/login"
           className="flex flex-col items-center gap-1 text-muted-foreground hover:text-primary transition-colors p-1.5"
         >
-          <MessageCircle className="h-5 w-5" />
-          <span className="text-[10px] font-medium">WhatsApp</span>
-        </a>
+          <div className="relative">
+            <User className="h-5 w-5" />
+            {isAuthenticated && (
+              <span className="absolute -top-0.5 -right-0.5 h-2 w-2 rounded-full bg-emerald-500 ring-2 ring-card" />
+            )}
+          </div>
+          <span className="text-[10px] font-medium">
+            {isAuthenticated && user ? "Account" : "Sign In"}
+          </span>
+        </Link>
       </div>
     </div>
   );
