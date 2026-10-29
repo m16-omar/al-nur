@@ -1,0 +1,21 @@
+{
+  "name": "Al-Nur Store",
+  "short_name": "Al-Nur",
+  "description": "Luxury Islamic Modest Fashion & Couture",
+  "icons": [
+    {
+      "src": "/android-chrome-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "/android-chrome-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ],
+  "theme_color": "#0E382B",
+  "background_color": "#FAF7F2",
+  "display": "standalone",
+  "start_url": "/"
+}

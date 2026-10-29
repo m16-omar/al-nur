@@ -1,0 +1,47 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" fill="none">
+  <defs>
+    <linearGradient id="gold-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#F3E5AB" />
+      <stop offset="35%" stop-color="#D4AF37" />
+      <stop offset="70%" stop-color="#AA7C11" />
+      <stop offset="100%" stop-color="#E5C158" />
+    </linearGradient>
+    <linearGradient id="bg-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0E382B" />
+      <stop offset="100%" stop-color="#061F17" />
+    </linearGradient>
+    <filter id="shadow" x="-10%" y="-10%" width="120%" height="120%">
+      <feDropShadow dx="0" dy="1" stdDeviation="1" flood-color="#000000" flood-opacity="0.4" />
+    </filter>
+  </defs>
+
+  <!-- Luxury Emerald Squircle -->
+  <rect width="64" height="64" rx="16" fill="url(#bg-grad)" stroke="url(#gold-grad)" stroke-width="2" />
+
+  <!-- Arch & Dome Motif -->
+  <g filter="url(#shadow)">
+    <!-- Crescent & Star -->
+    <path
+      d="M 32 9.5 A 3.5 3.5 0 1 0 35.5 13 A 3 3 0 0 1 32 9.5 Z"
+      fill="url(#gold-grad)"
+    />
+    <polygon
+      points="34.5,9.2 35.2,10.7 36.8,10.7 35.5,11.7 36,13.2 34.7,12.2 33.4,13.2 33.9,11.7 32.6,10.7 34.2,10.7"
+      fill="url(#gold-grad)"
+      transform="scale(0.55) translate(28, 2)"
+    />
+
+    <!-- Mosque Dome -->
+    <path
+      d="M 23 27 C 23 18 32 14 32 14 C 32 14 41 18 41 27 Z"
+      fill="url(#gold-grad)"
+    />
+
+    <!-- Ornate Arch and Pillars -->
+    <path
+      d="M 18 49 L 18 29 L 46 29 L 46 49 L 39 49 L 39 37 C 39 32 36 29 32 29 C 28 29 25 32 25 37 L 25 49 Z"
+      fill="url(#gold-grad)"
+    />
+    <line x1="16" y1="49" x2="48" y2="49" stroke="url(#gold-grad)" stroke-width="2.5" stroke-linecap="round" />
+  </g>
+</svg>
