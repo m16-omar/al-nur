@@ -1,5 +1,5 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   ArrowLeft,
   Share2,
@@ -17,6 +17,7 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 import { getProductById, getAllProducts, Product } from "@/lib/collections";
+import { fetchServerProductById, toggleServerFavorite } from "@/lib/api";
 import { useCart } from "@/lib/cart";
 import { useWishlist } from "@/lib/wishlist";
 import { Nav, Footer } from "@/components/SiteChrome";
@@ -73,19 +74,44 @@ function ProductDetailsPage() {
   const { addToCart } = useCart();
   const { isFavorite, toggleFavorite } = useWishlist();
 
+  const [product, setProduct] = useState<Product | null>(() => getProductById(id) || null);
+  const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    let isMounted = true;
+    async function load() {
+      try {
+        setLoading(true);
+        const serverProduct = await fetchServerProductById(id);
+        if (isMounted && serverProduct) {
+          setProduct(serverProduct);
+        }
+      } catch (e) {
+        console.warn("[ProductDetailsPage] Error fetching server product:", e);
+      } finally {
+        if (isMounted) setLoading(false);
+      }
+    }
+    load();
+    return () => {
+      isMounted = false;
+    };
+  }, [id]);
+
   // Resolve product or fallback
-  const resolvedProduct = getProductById(id) || {
-    id: id || "feat_1",
-    name: "Al-Nur Modest Couture Item",
-    price: "₦32,000",
-    originalPrice: "₦38,000",
-    blurb:
-      "Handcrafted from luxurious imported Medina crepe. Tailored with a modest flowing silhouette that offers maximum opacity, elegance, and comfort.",
-    img: "https://images.unsplash.com/photo-1583391733956-3750e0ff4e8b?auto=format&fit=crop&w=800&q=80",
-    category: "abayas",
-    rating: 4.9,
-    reviewCount: 48,
-  };
+  const resolvedProduct = product ||
+    getProductById(id) || {
+      id: id || "31",
+      name: "Al-Nur Modest Couture Item",
+      price: "₦32,000",
+      originalPrice: "₦38,000",
+      blurb:
+        "Handcrafted from luxurious imported materials. Tailored with a modest flowing silhouette that offers maximum elegance and comfort.",
+      img: "https://images.unsplash.com/photo-1594035910387-fea47794261f?auto=format&fit=crop&w=800&q=80",
+      category: "perfumes",
+      rating: 4.9,
+      reviewCount: 48,
+    };
 
   const [selectedImageIndex, setSelectedImageIndex] = useState(0);
   const [selectedColor, setSelectedColor] = useState(COLOR_SWATCHES[0].name);

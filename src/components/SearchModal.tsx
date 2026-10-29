@@ -1,7 +1,8 @@
-import React, { useState } from "react";
-import { Search, Mic, X, ShoppingBag } from "lucide-react";
+import React, { useState, useEffect } from "react";
+import { Search, Mic, X, ShoppingBag, Loader2 } from "lucide-react";
 import { Link } from "@tanstack/react-router";
-import { getAllProducts, Product } from "@/lib/collections";
+import { fetchServerProducts, mapServerProductToProduct } from "@/lib/api";
+import { Product } from "@/lib/collections";
 import { useCart } from "@/lib/cart";
 import { toast } from "sonner";
 
@@ -12,27 +13,41 @@ interface SearchModalProps {
 export function SearchModal({ onClose }: SearchModalProps) {
   const [query, setQuery] = useState("");
   const [isListening, setIsListening] = useState(false);
+  const [results, setResults] = useState<Product[]>([]);
+  const [loading, setLoading] = useState(false);
   const { addToCart } = useCart();
+
+  useEffect(() => {
+    let isMounted = true;
+    async function search() {
+      setLoading(true);
+      try {
+        const serverProducts = await fetchServerProducts(undefined, query.trim() || undefined);
+        if (isMounted) {
+          setResults(serverProducts.slice(0, 8).map(mapServerProductToProduct));
+        }
+      } catch (e) {
+        console.warn("[SearchModal] Search error:", e);
+      } finally {
+        if (isMounted) setLoading(false);
+      }
+    }
+    const timer = setTimeout(search, 200);
+    return () => {
+      clearTimeout(timer);
+      isMounted = false;
+    };
+  }, [query]);
 
   const handleVoiceSearch = () => {
     setIsListening(true);
     toast.info("Listening... (Simulating Voice Search)");
     setTimeout(() => {
-      setQuery("Dubai Abaya");
+      setQuery("Royal Oud");
       setIsListening(false);
-      toast.success("Found results for 'Dubai Abaya'!");
+      toast.success("Found results for 'Royal Oud'!");
     }, 1500);
   };
-
-  const allItems = getAllProducts();
-  const results = query.trim()
-    ? allItems.filter(
-        (p) =>
-          p.name.toLowerCase().includes(query.toLowerCase()) ||
-          p.blurb.toLowerCase().includes(query.toLowerCase()) ||
-          p.category.toLowerCase().includes(query.toLowerCase()),
-      )
-    : allItems.slice(0, 6);
 
   return (
     <div className="fixed inset-0 z-50 flex items-start justify-center p-4 pt-16 sm:pt-24 bg-black/70 backdrop-blur-sm animate-in fade-in duration-200">

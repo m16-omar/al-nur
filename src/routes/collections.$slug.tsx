@@ -1,15 +1,40 @@
 import { createFileRoute, Link, notFound } from "@tanstack/react-router";
 import { motion } from "framer-motion";
 import { Nav, Footer } from "@/components/SiteChrome";
-import { collections, getCollection, waLink, WHATSAPP } from "@/lib/collections";
+import { collections, getCollection, waLink, WHATSAPP, Collection } from "@/lib/collections";
+import { fetchServerCategories, fetchServerProducts } from "@/lib/api";
 import { useCart } from "@/lib/cart";
 import { ShoppingCart } from "lucide-react";
 
 export const Route = createFileRoute("/collections/$slug")({
-  loader: ({ params }): import("@/lib/collections").Collection => {
-    const c = getCollection(params.slug);
-    if (!c) throw notFound();
-    return c;
+  loader: async ({ params }): Promise<Collection> => {
+    try {
+      const [serverCats, serverProds] = await Promise.all([
+        fetchServerCategories(),
+        fetchServerProducts(params.slug),
+      ]);
+      const serverCat = serverCats.find((cat) => cat.categoryId === params.slug);
+      const fallback = getCollection(params.slug);
+
+      if (!serverCat && !fallback) throw notFound();
+
+      return {
+        slug: params.slug,
+        name: serverCat?.name || fallback?.name || params.slug,
+        tagline: serverCat?.tagline || fallback?.tagline || "Exclusive Luxury Collection",
+        intro:
+          serverCat?.intro || fallback?.intro || "Handcrafted pieces of pure luxury and grace.",
+        img:
+          serverProds[0]?.img ||
+          fallback?.img ||
+          "https://images.unsplash.com/photo-1594035910387-fea47794261f?auto=format&fit=crop&w=600&q=80",
+        products: serverProds.length > 0 ? serverProds : fallback?.products || [],
+      };
+    } catch {
+      const fallback = getCollection(params.slug);
+      if (!fallback) throw notFound();
+      return fallback;
+    }
   },
   head: ({ loaderData }) => ({
     meta: loaderData
@@ -41,7 +66,7 @@ export const Route = createFileRoute("/collections/$slug")({
 });
 
 function CollectionPage() {
-  const c = Route.useLoaderData() as import("@/lib/collections").Collection;
+  const c = Route.useLoaderData();
   const others = collections.filter((x) => x.slug !== c.slug);
   const { addToCart } = useCart();
 

@@ -1,6 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { motion } from "framer-motion";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Nav, Footer } from "@/components/SiteChrome";
 import { WelcomeBanner } from "@/components/WelcomeBanner";
 import { HeroCarousel } from "@/components/HeroCarousel";
@@ -9,6 +9,7 @@ import { AiAssistantCard } from "@/components/AiAssistantCard";
 import { FeaturedProducts } from "@/components/FeaturedProducts";
 import { MobileBottomNav } from "@/components/MobileBottomNav";
 import { collections } from "@/lib/collections";
+import { fetchServerCategories } from "@/lib/api";
 import { CartSheet } from "@/components/CartSheet";
 
 export const Route = createFileRoute("/")({
@@ -16,6 +17,34 @@ export const Route = createFileRoute("/")({
 });
 
 function CollectionsShowcase() {
+  const [items, setItems] = useState(collections);
+
+  useEffect(() => {
+    let isMounted = true;
+    fetchServerCategories()
+      .then((serverCats) => {
+        if (!isMounted || !serverCats || serverCats.length === 0) return;
+        const mapped = serverCats.map((sc) => {
+          const fallback = collections.find((c) => c.slug === sc.categoryId);
+          return {
+            slug: sc.categoryId,
+            name: sc.name,
+            tagline: sc.tagline,
+            intro: sc.intro,
+            img:
+              fallback?.img ||
+              "https://images.unsplash.com/photo-1594035910387-fea47794261f?auto=format&fit=crop&w=600&q=80",
+            products: fallback?.products || [],
+          };
+        });
+        setItems(mapped);
+      })
+      .catch((e) => console.warn("[CollectionsShowcase] Error fetching server categories:", e));
+    return () => {
+      isMounted = false;
+    };
+  }, []);
+
   return (
     <section id="collections" className="relative py-16 sm:py-24 px-4 sm:px-6 bg-card/20">
       <div className="mx-auto max-w-7xl">
@@ -35,7 +64,7 @@ function CollectionsShowcase() {
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 auto-rows-[300px]">
-          {collections.map((c, i) => (
+          {items.map((c, i) => (
             <motion.div
               key={c.name}
               initial={{ opacity: 0, y: 30 }}

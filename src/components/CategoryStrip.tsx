@@ -18,6 +18,76 @@ interface DisplayCategory {
 
 function mapServerCategoryToDisplay(cat: ServerCategory): DisplayCategory {
   switch (cat.categoryId.toLowerCase()) {
+    case "perfumes":
+      return {
+        id: "perfumes",
+        name: cat.name,
+        icon: "🌸",
+        tagline: cat.tagline,
+        bgColor: "bg-[#F5EDF9] dark:bg-[#291B2E]",
+        textColor: "text-[#582C64] dark:text-[#E8D4F0]",
+        borderColor: "border-[#DFC6E8] dark:border-[#3E2945]",
+      };
+    case "wedding-rings":
+      return {
+        id: "wedding-rings",
+        name: cat.name,
+        icon: "💍",
+        tagline: cat.tagline,
+        bgColor: "bg-[#FDF7E7] dark:bg-[#2C2616]",
+        textColor: "text-[#6E5417] dark:text-[#EFE5BD]",
+        borderColor: "border-[#EFE1AB] dark:border-[#453A20]",
+      };
+    case "wristwatches":
+      return {
+        id: "wristwatches",
+        name: cat.name,
+        icon: "⌚",
+        tagline: cat.tagline,
+        bgColor: "bg-[#E9F0FA] dark:bg-[#1A2433]",
+        textColor: "text-[#23436B] dark:text-[#D2E2F8]",
+        borderColor: "border-[#C8DAF3] dark:border-[#2C3B52]",
+      };
+    case "necklaces":
+      return {
+        id: "necklaces",
+        name: cat.name,
+        icon: "📿",
+        tagline: cat.tagline,
+        bgColor: "bg-[#F3E8FF] dark:bg-[#261A33]",
+        textColor: "text-[#4C1D95] dark:text-[#DDD6FE]",
+        borderColor: "border-[#DDD6FE] dark:border-[#3B2554]",
+      };
+    case "bangles":
+      return {
+        id: "bangles",
+        name: cat.name,
+        icon: "💫",
+        tagline: cat.tagline,
+        bgColor: "bg-[#FEF3C7] dark:bg-[#2D2313]",
+        textColor: "text-[#92400E] dark:text-[#FDE68A]",
+        borderColor: "border-[#FDE68A] dark:border-[#4D3814]",
+      };
+    case "jewelries":
+      return {
+        id: "jewelries",
+        name: cat.name,
+        icon: "✨",
+        tagline: cat.tagline,
+        bgColor: "bg-[#F9EAE1] dark:bg-[#2D1F1A]",
+        textColor: "text-[#7C2D12] dark:text-[#FED7AA]",
+        borderColor: "border-[#FED7AA] dark:border-[#4D291C]",
+      };
+    case "rings":
+      return {
+        id: "rings",
+        name: cat.name,
+        icon: "💎",
+        tagline: cat.tagline,
+        bgColor: "bg-[#E8F1EC] dark:bg-[#1A2620]",
+        textColor: "text-[#244E3B] dark:text-[#D1E6DA]",
+        borderColor: "border-[#C9DDD1] dark:border-[#2C3E33]",
+      };
     case "abayas":
       return {
         id: "abayas",
@@ -57,36 +127,6 @@ function mapServerCategoryToDisplay(cat: ServerCategory): DisplayCategory {
         bgColor: "bg-[#E9F0FA] dark:bg-[#1A2433]",
         textColor: "text-[#23436B] dark:text-[#D2E2F8]",
         borderColor: "border-[#C8DAF3] dark:border-[#2C3B52]",
-      };
-    case "perfumes":
-      return {
-        id: "perfumes",
-        name: cat.name,
-        icon: "🌸",
-        tagline: cat.tagline,
-        bgColor: "bg-[#F5EDF9] dark:bg-[#291B2E]",
-        textColor: "text-[#582C64] dark:text-[#E8D4F0]",
-        borderColor: "border-[#DFC6E8] dark:border-[#3E2945]",
-      };
-    case "jewelries":
-      return {
-        id: "jewelries",
-        name: cat.name,
-        icon: "💎",
-        tagline: cat.tagline,
-        bgColor: "bg-[#FDF7E7] dark:bg-[#2C2616]",
-        textColor: "text-[#6E5417] dark:text-[#EFE5BD]",
-        borderColor: "border-[#EFE1AB] dark:border-[#453A20]",
-      };
-    case "silk-khimars":
-      return {
-        id: "silk-khimars",
-        name: cat.name,
-        icon: "🧣",
-        tagline: cat.tagline,
-        bgColor: "bg-[#F5EFE6] dark:bg-[#2A231C]",
-        textColor: "text-[#503A2B] dark:text-[#EAE0D5]",
-        borderColor: "border-[#DFD2C0] dark:border-[#3E342B]",
       };
     default:
       return {

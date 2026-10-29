@@ -23,132 +23,119 @@ export interface ServerProduct {
   isFavorite?: boolean;
 }
 
+export interface Product {
+  id: string;
+  name: string;
+  price: string;
+  originalPrice?: string;
+  blurb: string;
+  img: string;
+  category: string;
+  rating: number;
+  reviewCount: number;
+  isPopular?: boolean;
+}
+
 export const API_BASE_URL = "https://alnur-store.api.serverpod.space";
 
-const AUTHENTIC_MODEST_FALLBACKS: Record<string, string> = {
-  abayas:
-    "https://images.unsplash.com/photo-1583391733956-3750e0ff4e8b?auto=format&fit=crop&w=600&q=80",
-  hijabs:
-    "https://images.unsplash.com/photo-1583391733956-3750e0ff4e8b?auto=format&fit=crop&w=600&q=80",
-  jalabias:
-    "https://images.unsplash.com/photo-1629200468328-87bf3adfb78b?auto=format&fit=crop&w=600&q=80",
-  thobes:
-    "https://images.unsplash.com/photo-1583391733956-3750e0ff4e8b?auto=format&fit=crop&w=600&q=80",
-  perfumes:
-    "https://images.unsplash.com/photo-1594035910387-fea47794261f?auto=format&fit=crop&w=600&q=80",
-  jewelries:
-    "https://images.unsplash.com/photo-1599643478518-a784e5dc4c8f?auto=format&fit=crop&w=600&q=80",
-  "silk-khimars":
-    "https://images.unsplash.com/photo-1583391733956-3750e0ff4e8b?auto=format&fit=crop&w=600&q=80",
-};
-
 /**
- * Sanitizes product images to ensure no placeholder/dummy images ever appear in production.
- */
-export function sanitizeProductImage(url: string, categoryId?: string): string {
-  if (!url || typeof url !== "string" || url.trim().length === 0) {
-    return getFallbackImageForCategory(categoryId);
-  }
-  // Typewriter image -> Pure Medina Silk Hijab
-  if (url.includes("1585829365295")) {
-    return AUTHENTIC_MODEST_FALLBACKS[categoryId || "hijabs"] || AUTHENTIC_MODEST_FALLBACKS.abayas;
-  }
-  // Milan trenchcoat pigeons -> Moroccan Royal Emerald Jalabia
-  if (url.includes("1539109136881")) {
-    return AUTHENTIC_MODEST_FALLBACKS.jalabias;
-  }
-  // Western suit and necktie -> Emirati Minimalist White Thobe
-  if (
-    url.includes("1507679799987") ||
-    url.includes("1534528741775") ||
-    url.includes("1492562080023")
-  ) {
-    return AUTHENTIC_MODEST_FALLBACKS.thobes;
-  }
-  // Store rack / hangers -> Pearl Beaded Organza Abaya
-  if (url.includes("1567401893414")) {
-    return AUTHENTIC_MODEST_FALLBACKS.abayas;
-  }
-  // Eye shadow palette -> Modest wear
-  if (url.includes("1596704017254")) {
-    return AUTHENTIC_MODEST_FALLBACKS.hijabs;
-  }
-  return url;
-}
-
-export function getFallbackImageForCategory(categoryId?: string): string {
-  return AUTHENTIC_MODEST_FALLBACKS[categoryId || "abayas"] || AUTHENTIC_MODEST_FALLBACKS.abayas;
-}
-
-/**
- * Authentic seeded categories from the Serverpod backend.
- * Guaranteed to match database seeds on Serverpod server.
+ * Authentic seeded categories from the Serverpod backend database.
  */
 export const DEFAULT_SERVER_CATEGORIES: ServerCategory[] = [
   {
-    id: 1,
-    categoryId: "abayas",
-    name: "Abayas",
-    iconName: "dry_cleaning_rounded",
-    tagline: "Flowing Dubai Nida & Organza Silhouettes",
-    intro: "Handcrafted abayas for modest elegance and special occasions.",
-    colorHex: "0xFFF5EFE6",
-  },
-  {
-    id: 2,
-    categoryId: "hijabs",
-    name: "Hijabs",
-    iconName: "all_inclusive_rounded",
-    tagline: "Pure Medina Silk & Breathable Chiffon",
-    intro: "Drape effortlessly with premium non-slip Islamic veils.",
-    colorHex: "0xFFE8F1EC",
-  },
-  {
-    id: 3,
-    categoryId: "jalabias",
-    name: "Jalabias",
-    iconName: "auto_awesome_outlined",
-    tagline: "Moroccan Sfifa & Royal Gulf Cut",
-    intro: "Exquisite embroidery and jewel-toned fabrics for gatherings.",
-    colorHex: "0xFFFBF4E6",
-  },
-  {
-    id: 4,
-    categoryId: "thobes",
-    name: "Thobes",
-    iconName: "person_rounded",
-    tagline: "Crisp Emirati & Saudi Jubbahs",
-    intro: "Tailored minimalist white and luxury linen thobes.",
-    colorHex: "0xFFE9F0FA",
-  },
-  {
-    id: 5,
+    id: 13,
     categoryId: "perfumes",
-    name: "Perfumes",
+    name: "Perfumes & Oud",
     iconName: "spa_rounded",
-    tagline: "Signature Oud Blends & Musks",
-    intro: "Long-lasting oriental and floral perfumes suited for prayer and events.",
+    tagline: "Royal Arabian Oud, Vanilla & Musks",
+    intro:
+      "Long-lasting concentrated perfume oils and royal Arabian scents crafted for Nigerian celebrations.",
     colorHex: "0xFFF5EDF9",
   },
   {
-    id: 6,
-    categoryId: "jewelries",
-    name: "Jewelries",
-    iconName: "diamond_outlined",
-    tagline: "Heirloom Gold & Pearl Accents",
-    intro: "Bridal sets, bangles and necklaces in rich gold finish.",
+    id: 14,
+    categoryId: "wedding-rings",
+    name: "Wedding Rings",
+    iconName: "diamond_rounded",
+    tagline: "18K Gold Plated & Moissanite Sets",
+    intro:
+      "Timeless matching couple bands and bridal proposal rings crafted for Nigerian weddings.",
     colorHex: "0xFFFDF7E7",
   },
   {
-    id: 7,
-    categoryId: "silk-khimars",
-    name: "Silk Khimars",
-    iconName: "checkroom_rounded",
-    tagline: "Handmade Modest Silk Pieces",
-    intro: "Exclusive artisanal collection crafted for modesty and grace.",
-    colorHex: "0xFFF5EFE6",
+    id: 15,
+    categoryId: "wristwatches",
+    name: "Wristwatches",
+    iconName: "watch_outlined",
+    tagline: "Diamond-Bezel & Luxury Steel Timepieces",
+    intro: "Precision quartz and automatic wristwatches for elegant men, women, and couples.",
+    colorHex: "0xFFE9F0FA",
+  },
+  {
+    id: 16,
+    categoryId: "necklaces",
+    name: "Luxury Necklaces",
+    iconName: "diamond_outlined",
+    tagline: "Dubai Rope Chains, Chokers & Pendants",
+    intro:
+      "Non-tarnish 18K gold layered chains, Arabic coin medallions, and Austrian bridal chokers crafted for Nigerian weddings and galas.",
+    colorHex: "0xFFF3E8FF",
+  },
+  {
+    id: 17,
+    categoryId: "bangles",
+    name: "Royal Bangles & Bracelets",
+    iconName: "circle_outlined",
+    tagline: "Kano Filigree Bangles & Tennis Bracelets",
+    intro:
+      "Exquisite embossed gold bangles, open cuffs, and sparkling cubic zirconia tennis bracelets for Owambe and everyday grace.",
+    colorHex: "0xFFFEF3C7",
+  },
+  {
+    id: 18,
+    categoryId: "jewelries",
+    name: "Fine Jewelry",
+    iconName: "auto_awesome_rounded",
+    tagline: "Bridal Sets, Gala Brooches & Ensembles",
+    intro:
+      "Exquisite 4-piece bridal sets, emerald crystals, and heirloom gold jewelry for grand Nigerian celebrations.",
+    colorHex: "0xFFF9EAE1",
+  },
+  {
+    id: 19,
+    categoryId: "rings",
+    name: "Rings",
+    iconName: "circle_outlined",
+    tagline: "Everyday Luxury, Gemstones & Signet Bands",
+    intro: "Hand-finished emerald crystals, signets and barakah statement rings.",
+    colorHex: "0xFFE8F1EC",
   },
 ];
+
+/**
+ * Maps a ServerProduct model returned from Serverpod into the UI Product shape.
+ */
+export function mapServerProductToProduct(sp: ServerProduct): Product {
+  const formattedPrice =
+    typeof sp.price === "number" ? `₦${sp.price.toLocaleString("en-NG")}` : String(sp.price);
+  const formattedOriginalPrice =
+    typeof sp.originalPrice === "number" && sp.originalPrice > 0
+      ? `₦${sp.originalPrice.toLocaleString("en-NG")}`
+      : undefined;
+
+  return {
+    id: String(sp.id),
+    name: sp.name,
+    price: formattedPrice,
+    originalPrice: formattedOriginalPrice,
+    blurb: sp.description,
+    img: sp.imageUrl,
+    category: sp.categoryId,
+    rating: typeof sp.rating === "number" ? sp.rating : 5.0,
+    reviewCount: typeof sp.reviewCount === "number" ? sp.reviewCount : 0,
+    isPopular: (sp.rating ?? 0) >= 4.9 || Boolean(sp.isFavorite),
+  };
+}
 
 /**
  * Fetch live store categories from Serverpod backend, falling back to authentic server defaults.
@@ -187,6 +174,13 @@ export async function fetchServerCategories(): Promise<ServerCategory[]> {
 }
 
 /**
+ * In-memory product cache to accelerate consecutive lookups.
+ */
+let cachedServerProducts: ServerProduct[] | null = null;
+let lastCacheTime = 0;
+const CACHE_TTL_MS = 60000; // 1 minute
+
+/**
  * Fetch live store products from Serverpod backend, filtering optionally by categoryId.
  */
 export async function fetchServerProducts(
@@ -216,7 +210,7 @@ export async function fetchServerProducts(
 
     const data = await res.json();
     if (Array.isArray(data)) {
-      return data.map((item: Record<string, unknown>) => ({
+      const parsed: ServerProduct[] = data.map((item: Record<string, unknown>) => ({
         id: Number(item.id),
         name: String(item.name),
         slug: String(item.slug),
@@ -225,17 +219,59 @@ export async function fetchServerProducts(
         originalPrice: item.originalPrice ? Number(item.originalPrice) : undefined,
         rating: Number(item.rating ?? 5.0),
         reviewCount: Number(item.reviewCount ?? 0),
-        imageUrl: sanitizeProductImage(String(item.imageUrl), String(item.categoryId)),
+        imageUrl: String(item.imageUrl),
         description: String(item.description),
         isAvailable: Boolean(item.isAvailable ?? true),
         isFavorite: Boolean(item.isFavorite ?? false),
       }));
+
+      // Cache if this was an unfiltered fetch
+      if (!categoryId || categoryId === "all") {
+        if (!search) {
+          cachedServerProducts = parsed;
+          lastCacheTime = Date.now();
+        }
+      }
+
+      return parsed;
     }
     return [];
   } catch (err) {
     console.warn("[Al-Nur API] Error fetching server products:", err);
     return [];
   }
+}
+
+/**
+ * Fetch a single product by ID or slug directly from the backend.
+ */
+export async function fetchServerProductById(
+  idOrSlug: string | number,
+): Promise<Product | undefined> {
+  const queryStr = String(idOrSlug).toLowerCase();
+
+  // Check cache first
+  if (
+    cachedServerProducts &&
+    Date.now() - lastCacheTime < CACHE_TTL_MS &&
+    cachedServerProducts.length > 0
+  ) {
+    const found = cachedServerProducts.find(
+      (p) =>
+        String(p.id) === queryStr ||
+        p.slug.toLowerCase() === queryStr ||
+        `prod_${p.id}` === queryStr,
+    );
+    if (found) return mapServerProductToProduct(found);
+  }
+
+  // Fetch all products from server
+  const all = await fetchServerProducts();
+  const match = all.find(
+    (p) =>
+      String(p.id) === queryStr || p.slug.toLowerCase() === queryStr || `prod_${p.id}` === queryStr,
+  );
+  return match ? mapServerProductToProduct(match) : undefined;
 }
 
 /**
