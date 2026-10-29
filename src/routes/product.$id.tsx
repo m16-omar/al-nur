@@ -23,6 +23,8 @@ import { Nav, Footer } from "@/components/SiteChrome";
 import { SizeGuideModal } from "@/components/SizeGuideModal";
 import { ImageZoomModal } from "@/components/ImageZoomModal";
 import { GuestPromptModal } from "@/components/GuestPromptModal";
+import heroPortraitImg from "@/assets/hero-portrait.jpg";
+import veilsImg from "@/assets/veils.jpg";
 
 export const Route = createFileRoute("/product/$id")({
   component: ProductDetailsPage,
@@ -96,11 +98,7 @@ function ProductDetailsPage() {
   const [guestPromptOpen, setGuestPromptOpen] = useState(false);
   const [guestPromptContent, setGuestPromptContent] = useState({ title: "", message: "" });
 
-  const galleryImages = [
-    resolvedProduct.img,
-    "https://images.unsplash.com/photo-1585829365295-ab7cd400c167?auto=format&fit=crop&w=800&q=80",
-    "https://images.unsplash.com/photo-1567401893414-76b7b1e5a7a5?auto=format&fit=crop&w=800&q=80",
-  ];
+  const galleryImages = [resolvedProduct.img, heroPortraitImg, veilsImg];
 
   const handleShare = () => {
     const link = `https://alnur.store/product/${resolvedProduct.id}`;

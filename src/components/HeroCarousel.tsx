@@ -2,6 +2,8 @@ import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { ArrowRight, ChevronLeft, ChevronRight, Sparkles } from "lucide-react";
 import { WHATSAPP } from "@/lib/collections";
+import heroPortraitImg from "@/assets/hero-portrait.jpg";
+import jalabiaEmeraldImg from "@/assets/jalabia-emerald.jpg";
 
 const slides = [
   {
@@ -20,7 +22,7 @@ const slides = [
       "Breathable. Graceful. Pure. Featherlight silk in soft tones designed to drape like poetry.",
     cta: "Explore Hijabs →",
     link: "#featured-products",
-    img: "https://images.unsplash.com/photo-1585829365295-ab7cd400c167?auto=format&fit=crop&w=1200&q=80",
+    img: heroPortraitImg,
     badge: "Best Seller",
   },
   {
@@ -29,7 +31,7 @@ const slides = [
     subtitle: "Handmade Sfifa embroidery on premium velvet with artisanal gold finishes.",
     cta: "View Jalabias →",
     link: "#featured-products",
-    img: "https://images.unsplash.com/photo-1539109136881-3be0616acf4b?auto=format&fit=crop&w=1200&q=80",
+    img: jalabiaEmeraldImg,
     badge: "Exclusive Edition",
   },
 ];

@@ -25,6 +25,61 @@ export interface ServerProduct {
 
 export const API_BASE_URL = "https://alnur-store.api.serverpod.space";
 
+const AUTHENTIC_MODEST_FALLBACKS: Record<string, string> = {
+  abayas:
+    "https://images.unsplash.com/photo-1583391733956-3750e0ff4e8b?auto=format&fit=crop&w=600&q=80",
+  hijabs:
+    "https://images.unsplash.com/photo-1583391733956-3750e0ff4e8b?auto=format&fit=crop&w=600&q=80",
+  jalabias:
+    "https://images.unsplash.com/photo-1629200468328-87bf3adfb78b?auto=format&fit=crop&w=600&q=80",
+  thobes:
+    "https://images.unsplash.com/photo-1583391733956-3750e0ff4e8b?auto=format&fit=crop&w=600&q=80",
+  perfumes:
+    "https://images.unsplash.com/photo-1594035910387-fea47794261f?auto=format&fit=crop&w=600&q=80",
+  jewelries:
+    "https://images.unsplash.com/photo-1599643478518-a784e5dc4c8f?auto=format&fit=crop&w=600&q=80",
+  "silk-khimars":
+    "https://images.unsplash.com/photo-1583391733956-3750e0ff4e8b?auto=format&fit=crop&w=600&q=80",
+};
+
+/**
+ * Sanitizes product images to ensure no placeholder/dummy images ever appear in production.
+ */
+export function sanitizeProductImage(url: string, categoryId?: string): string {
+  if (!url || typeof url !== "string" || url.trim().length === 0) {
+    return getFallbackImageForCategory(categoryId);
+  }
+  // Typewriter image -> Pure Medina Silk Hijab
+  if (url.includes("1585829365295")) {
+    return AUTHENTIC_MODEST_FALLBACKS[categoryId || "hijabs"] || AUTHENTIC_MODEST_FALLBACKS.abayas;
+  }
+  // Milan trenchcoat pigeons -> Moroccan Royal Emerald Jalabia
+  if (url.includes("1539109136881")) {
+    return AUTHENTIC_MODEST_FALLBACKS.jalabias;
+  }
+  // Western suit and necktie -> Emirati Minimalist White Thobe
+  if (
+    url.includes("1507679799987") ||
+    url.includes("1534528741775") ||
+    url.includes("1492562080023")
+  ) {
+    return AUTHENTIC_MODEST_FALLBACKS.thobes;
+  }
+  // Store rack / hangers -> Pearl Beaded Organza Abaya
+  if (url.includes("1567401893414")) {
+    return AUTHENTIC_MODEST_FALLBACKS.abayas;
+  }
+  // Eye shadow palette -> Modest wear
+  if (url.includes("1596704017254")) {
+    return AUTHENTIC_MODEST_FALLBACKS.hijabs;
+  }
+  return url;
+}
+
+export function getFallbackImageForCategory(categoryId?: string): string {
+  return AUTHENTIC_MODEST_FALLBACKS[categoryId || "abayas"] || AUTHENTIC_MODEST_FALLBACKS.abayas;
+}
+
 /**
  * Authentic seeded categories from the Serverpod backend.
  * Guaranteed to match database seeds on Serverpod server.
@@ -170,7 +225,7 @@ export async function fetchServerProducts(
         originalPrice: item.originalPrice ? Number(item.originalPrice) : undefined,
         rating: Number(item.rating ?? 5.0),
         reviewCount: Number(item.reviewCount ?? 0),
-        imageUrl: String(item.imageUrl),
+        imageUrl: sanitizeProductImage(String(item.imageUrl), String(item.categoryId)),
         description: String(item.description),
         isAvailable: Boolean(item.isAvailable ?? true),
         isFavorite: Boolean(item.isFavorite ?? false),

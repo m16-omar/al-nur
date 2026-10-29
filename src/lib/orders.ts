@@ -93,7 +93,7 @@ export const INITIAL_ORDERS: StoreOrder[] = [
         color: "Emerald Silk",
         price: 8500,
         imageUrl:
-          "https://images.unsplash.com/photo-1585829365295-ab7cd400c167?auto=format&fit=crop&w=500&q=80",
+          "https://images.unsplash.com/photo-1583391733956-3750e0ff4e8b?auto=format&fit=crop&w=500&q=80",
       },
     ],
     timeline: [
@@ -149,7 +149,7 @@ export const INITIAL_ORDERS: StoreOrder[] = [
         color: "Royal Emerald / Gold Sfifa",
         price: 36000,
         imageUrl:
-          "https://images.unsplash.com/photo-1539109136881-3be0616acf4b?auto=format&fit=crop&w=500&q=80",
+          "https://images.unsplash.com/photo-1629200468328-87bf3adfb78b?auto=format&fit=crop&w=500&q=80",
       },
     ],
     timeline: [

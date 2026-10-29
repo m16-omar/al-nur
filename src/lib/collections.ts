@@ -1,6 +1,12 @@
 import perfumesImg from "@/assets/perfumes.jpg";
 import veilsImg from "@/assets/veils.jpg";
 import jewelryImg from "@/assets/jewelry.jpg";
+import heroPortraitImg from "@/assets/hero-portrait.jpg";
+import thobeWhiteImg from "@/assets/thobe-white.jpg";
+import abayaOrganzaImg from "@/assets/abaya-organza.jpg";
+import jalabiaEmeraldImg from "@/assets/jalabia-emerald.jpg";
+import hijabMedinaImg from "@/assets/hijab-medina.jpg";
+import hijabSageImg from "@/assets/hijab-sage.jpg";
 
 export const WHATSAPP = "https://wa.me/2349166261575";
 
@@ -49,7 +55,7 @@ export const featuredProducts: Product[] = [
     originalPrice: "₦11,000",
     blurb:
       "Ultra-soft, opaque Medina silk hijab with subtle luster, breathable for all-day comfort.",
-    img: "https://images.unsplash.com/photo-1585829365295-ab7cd400c167?auto=format&fit=crop&w=600&q=80",
+    img: hijabMedinaImg,
     category: "hijabs",
     rating: 4.8,
     reviewCount: 96,
@@ -62,7 +68,7 @@ export const featuredProducts: Product[] = [
     originalPrice: "₦42,000",
     blurb:
       "Exquisite Moroccan Sfifa embroidery on premium emerald velvet with handmade sfifa buttons.",
-    img: "https://images.unsplash.com/photo-1539109136881-3be0616acf4b?auto=format&fit=crop&w=600&q=80",
+    img: jalabiaEmeraldImg,
     category: "jalabias",
     rating: 4.9,
     reviewCount: 68,
@@ -75,7 +81,7 @@ export const featuredProducts: Product[] = [
     originalPrice: "₦32,000",
     blurb:
       "Crisp white cotton thobe with round collar, tailored for daily prayer, Friday Jumuah, and formal events.",
-    img: "https://images.unsplash.com/photo-1507679799987-c73779587ccf?auto=format&fit=crop&w=600&q=80",
+    img: thobeWhiteImg,
     category: "thobes",
     rating: 4.8,
     reviewCount: 57,
@@ -126,7 +132,7 @@ export const featuredProducts: Product[] = [
     originalPrice: "₦45,000",
     blurb:
       "Luxurious double-layer organza abaya with hand-set river pearls along the lapel and cuffs.",
-    img: "https://images.unsplash.com/photo-1567401893414-76b7b1e5a7a5?auto=format&fit=crop&w=600&q=80",
+    img: abayaOrganzaImg,
     category: "abayas",
     rating: 4.9,
     reviewCount: 82,
@@ -169,7 +175,7 @@ export const collections: Collection[] = [
         price: "₦38,000",
         originalPrice: "₦45,000",
         blurb: "Luxurious double-layer organza abaya with hand-set pearls.",
-        img: "https://images.unsplash.com/photo-1567401893414-76b7b1e5a7a5?auto=format&fit=crop&w=600&q=80",
+        img: abayaOrganzaImg,
         category: "abayas",
         rating: 4.9,
         reviewCount: 82,
@@ -180,7 +186,7 @@ export const collections: Collection[] = [
         price: "₦27,500",
         originalPrice: "₦32,000",
         blurb: "Breathable European linen blend with wide relaxed sleeves.",
-        img: "https://images.unsplash.com/photo-1509631179647-0177331693ae?auto=format&fit=crop&w=600&q=80",
+        img: abayaOrganzaImg,
         category: "abayas",
         rating: 4.7,
         reviewCount: 64,
@@ -192,7 +198,7 @@ export const collections: Collection[] = [
     name: "Hijabs",
     tagline: "Pure Medina Silk & Breathable Chiffon",
     intro: "Drape effortlessly with premium non-slip Islamic veils in rich modest hues.",
-    img: "https://images.unsplash.com/photo-1585829365295-ab7cd400c167?auto=format&fit=crop&w=600&q=80",
+    img: hijabMedinaImg,
     products: [
       {
         id: "hj_1",
@@ -200,7 +206,7 @@ export const collections: Collection[] = [
         price: "₦8,500",
         originalPrice: "₦11,000",
         blurb: "Ultra-soft, opaque Medina silk hijab with subtle luster.",
-        img: "https://images.unsplash.com/photo-1585829365295-ab7cd400c167?auto=format&fit=crop&w=600&q=80",
+        img: hijabMedinaImg,
         category: "hijabs",
         rating: 4.8,
         reviewCount: 96,
@@ -211,7 +217,7 @@ export const collections: Collection[] = [
         price: "₦7,500",
         originalPrice: "₦9,500",
         blurb: "Lightweight, breathable luxury chiffon that drapes gracefully.",
-        img: "https://images.unsplash.com/photo-1585829365295-ab7cd400c167?auto=format&fit=crop&w=600&q=80",
+        img: hijabSageImg,
         category: "hijabs",
         rating: 4.8,
         reviewCount: 78,
@@ -222,7 +228,7 @@ export const collections: Collection[] = [
         price: "₦8,800",
         originalPrice: "₦10,500",
         blurb: "Lustrous emerald green Medina silk crafted for formal celebrations.",
-        img: "https://images.unsplash.com/photo-1596704017254-9b121068fb31?auto=format&fit=crop&w=600&q=80",
+        img: veilsImg,
         category: "hijabs",
         rating: 4.9,
         reviewCount: 94,
@@ -233,7 +239,7 @@ export const collections: Collection[] = [
         price: "₦6,800",
         originalPrice: "₦8,500",
         blurb: "Delicate accordion pleated chiffon crepe in dusty rose.",
-        img: "https://images.unsplash.com/photo-1574169208507-84376144848b?auto=format&fit=crop&w=600&q=80",
+        img: heroPortraitImg,
         category: "hijabs",
         rating: 4.7,
         reviewCount: 54,
@@ -245,7 +251,7 @@ export const collections: Collection[] = [
     name: "Jalabias",
     tagline: "Moroccan Sfifa & Royal Gulf Cut",
     intro: "Exquisite embroidery and jewel-toned fabrics for gatherings and festive celebrations.",
-    img: "https://images.unsplash.com/photo-1539109136881-3be0616acf4b?auto=format&fit=crop&w=600&q=80",
+    img: jalabiaEmeraldImg,
     products: [
       {
         id: "jal_1",
@@ -253,7 +259,7 @@ export const collections: Collection[] = [
         price: "₦36,000",
         originalPrice: "₦42,000",
         blurb: "Exquisite Moroccan Sfifa embroidery on emerald velvet.",
-        img: "https://images.unsplash.com/photo-1539109136881-3be0616acf4b?auto=format&fit=crop&w=600&q=80",
+        img: jalabiaEmeraldImg,
         category: "jalabias",
         rating: 4.9,
         reviewCount: 68,
@@ -264,7 +270,7 @@ export const collections: Collection[] = [
         price: "₦45,000",
         originalPrice: "₦52,000",
         blurb: "Festive floor-length jalabia adorned with golden zardozi thread.",
-        img: "https://images.unsplash.com/photo-1539109136881-3be0616acf4b?auto=format&fit=crop&w=600&q=80",
+        img: "https://images.unsplash.com/photo-1629200468328-87bf3adfb78b?auto=format&fit=crop&w=600&q=80",
         category: "jalabias",
         rating: 4.9,
         reviewCount: 89,
@@ -275,7 +281,7 @@ export const collections: Collection[] = [
         price: "₦34,000",
         originalPrice: "₦40,000",
         blurb: "Handcrafted Moroccan jalabia with braided cord neckline.",
-        img: "https://images.unsplash.com/photo-1490481651871-ab68de25d43d?auto=format&fit=crop&w=600&q=80",
+        img: jalabiaEmeraldImg,
         category: "jalabias",
         rating: 4.8,
         reviewCount: 67,
@@ -286,7 +292,7 @@ export const collections: Collection[] = [
         price: "₦48,000",
         originalPrice: "₦58,000",
         blurb: "Plush sapphire velvet jalabia with artisanal threadwork.",
-        img: "https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?auto=format&fit=crop&w=600&q=80",
+        img: jalabiaEmeraldImg,
         category: "jalabias",
         rating: 4.9,
         reviewCount: 42,
@@ -299,7 +305,7 @@ export const collections: Collection[] = [
     tagline: "Crisp Emirati & Saudi Jubbahs",
     intro:
       "Tailored minimalist white and luxury linen thobes for prayer, Jumuah, and formal events.",
-    img: "https://images.unsplash.com/photo-1507679799987-c73779587ccf?auto=format&fit=crop&w=600&q=80",
+    img: thobeWhiteImg,
     products: [
       {
         id: "th_1",
@@ -307,7 +313,7 @@ export const collections: Collection[] = [
         price: "₦26,000",
         originalPrice: "₦32,000",
         blurb: "Crisp white cotton thobe with round collar and tailored cuffs.",
-        img: "https://images.unsplash.com/photo-1507679799987-c73779587ccf?auto=format&fit=crop&w=600&q=80",
+        img: thobeWhiteImg,
         category: "thobes",
         rating: 4.8,
         reviewCount: 57,
@@ -318,7 +324,7 @@ export const collections: Collection[] = [
         price: "₦34,000",
         originalPrice: "₦40,000",
         blurb: "Tailored luxury Jubbah with subtle gold embroidery on Mandarin collar.",
-        img: "https://images.unsplash.com/photo-1563245372-f21724e3856d?auto=format&fit=crop&w=600&q=80",
+        img: thobeWhiteImg,
         category: "thobes",
         rating: 4.9,
         reviewCount: 48,
@@ -329,7 +335,7 @@ export const collections: Collection[] = [
         price: "₦29,500",
         originalPrice: "₦35,000",
         blurb: "Authentic Omani thobe with signature handcrafted chest tassel.",
-        img: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=600&q=80",
+        img: thobeWhiteImg,
         category: "thobes",
         rating: 4.7,
         reviewCount: 39,
@@ -340,7 +346,7 @@ export const collections: Collection[] = [
         price: "₦42,000",
         originalPrice: "₦49,000",
         blurb: "Traditional hooded Moroccan djellaba crafted with warm wool-blend fabric.",
-        img: "https://images.unsplash.com/photo-1492562080023-ab3db95bfbce?auto=format&fit=crop&w=600&q=80",
+        img: thobeWhiteImg,
         category: "thobes",
         rating: 4.9,
         reviewCount: 34,
