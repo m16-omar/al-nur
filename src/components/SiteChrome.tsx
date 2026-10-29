@@ -257,7 +257,7 @@ export function Nav() {
             {collections.map((c) => (
               <Link
                 key={c.slug}
-                to="/collections/"
+                to="/collections/$slug"
                 params={{ slug: c.slug }}
                 onClick={() => setOpen(false)}
                 className="text-sm py-1 text-muted-foreground hover:text-foreground"
@@ -359,7 +359,7 @@ export function Footer() {
           {collections.map((c) => (
             <Link
               key={c.slug}
-              to="/collections/"
+              to="/collections/$slug"
               params={{ slug: c.slug }}
               className="hover:text-primary transition-colors"
             >

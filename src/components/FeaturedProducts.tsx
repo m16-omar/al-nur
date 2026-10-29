@@ -1,7 +1,13 @@
 import React from "react";
 import { Heart, Star, ShoppingBag, ArrowUpRight } from "lucide-react";
 import { Link } from "@tanstack/react-router";
-import { featuredProducts, Product, waLink } from "@/lib/collections";
+import {
+  featuredProducts,
+  getAllProducts,
+  getCollection,
+  Product,
+  waLink,
+} from "@/lib/collections";
 import { useCart } from "@/lib/cart";
 import { useWishlist } from "@/lib/wishlist";
 import { toast } from "sonner";
@@ -21,10 +27,18 @@ export function FeaturedProducts({ activeCategory }: FeaturedProductsProps) {
     });
   };
 
+  const allItems = getAllProducts();
+  const activeCollection = getCollection(activeCategory);
+
   const filtered =
     activeCategory === "all"
       ? featuredProducts
-      : featuredProducts.filter((p) => p.category === activeCategory);
+      : allItems.filter((p) => p.category === activeCategory);
+
+  const title =
+    activeCategory === "all"
+      ? "Featured Products"
+      : `${activeCollection?.name || activeCategory} Collection`;
 
   return (
     <section id="featured-products" className="max-w-7xl mx-auto px-4 sm:px-6 py-10">
@@ -33,8 +47,8 @@ export function FeaturedProducts({ activeCategory }: FeaturedProductsProps) {
           <span className="text-[11px] uppercase tracking-[0.25em] text-primary font-bold">
             Curated For You
           </span>
-          <h2 className="font-display text-3xl sm:text-4xl font-bold text-foreground mt-1">
-            Featured Products
+          <h2 className="font-display text-3xl sm:text-4xl font-bold text-foreground mt-1 capitalize">
+            {title}
           </h2>
         </div>
         <div className="text-xs text-muted-foreground">

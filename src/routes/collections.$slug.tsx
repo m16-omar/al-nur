@@ -121,7 +121,7 @@ function CollectionPage() {
                 <div className="relative aspect-[4/3] overflow-hidden">
                   <Link to="/product/$id" params={{ id: p.id }} className="block w-full h-full">
                     <img
-                      src={c.img}
+                      src={p.img || c.img}
                       alt={p.name}
                       loading="lazy"
                       className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-110"

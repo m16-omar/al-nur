@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { Search, Mic, X, ShoppingBag } from "lucide-react";
 import { Link } from "@tanstack/react-router";
-import { featuredProducts, Product } from "@/lib/collections";
+import { getAllProducts, Product } from "@/lib/collections";
 import { useCart } from "@/lib/cart";
 import { toast } from "sonner";
 
@@ -24,14 +24,15 @@ export function SearchModal({ onClose }: SearchModalProps) {
     }, 1500);
   };
 
+  const allItems = getAllProducts();
   const results = query.trim()
-    ? featuredProducts.filter(
+    ? allItems.filter(
         (p) =>
           p.name.toLowerCase().includes(query.toLowerCase()) ||
           p.blurb.toLowerCase().includes(query.toLowerCase()) ||
           p.category.toLowerCase().includes(query.toLowerCase()),
       )
-    : featuredProducts.slice(0, 4);
+    : allItems.slice(0, 6);
 
   return (
     <div className="fixed inset-0 z-50 flex items-start justify-center p-4 pt-16 sm:pt-24 bg-black/70 backdrop-blur-sm animate-in fade-in duration-200">

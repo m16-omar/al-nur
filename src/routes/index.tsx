@@ -25,7 +25,7 @@ function CollectionsShowcase() {
               Collections
             </div>
             <h2 className="font-display text-4xl sm:text-5xl font-bold max-w-xl text-foreground">
-              Five quiet expressions of <span className="italic text-gold-grad">grace</span>
+              Curated expressions of <span className="italic text-gold-grad">grace</span>
             </h2>
           </div>
           <p className="max-w-sm text-sm text-muted-foreground">
@@ -34,7 +34,7 @@ function CollectionsShowcase() {
           </p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-6 gap-4 auto-rows-[280px]">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 auto-rows-[300px]">
           {collections.map((c, i) => (
             <motion.div
               key={c.name}
@@ -44,13 +44,11 @@ function CollectionsShowcase() {
               transition={{ duration: 0.6, delay: i * 0.08 }}
               whileHover={{ y: -6 }}
               className={`group relative overflow-hidden rounded-3xl border border-primary/25 shadow-lg cursor-pointer ${
-                i === 0 ? "md:col-span-3 md:row-span-2" : ""
-              } ${i === 1 ? "md:col-span-3" : ""} ${i === 2 ? "md:col-span-2" : ""} ${
-                i === 3 ? "md:col-span-2" : ""
-              } ${i === 4 ? "md:col-span-2" : ""}`}
+                i === 0 ? "lg:col-span-2 lg:row-span-2 auto-rows-auto" : ""
+              }`}
             >
               <Link
-                to="/collections/"
+                to="/collections/$slug"
                 params={{ slug: c.slug }}
                 className="absolute inset-0 z-10"
               />
