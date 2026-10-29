@@ -26,6 +26,19 @@ function SignUpPage() {
   const [loading, setLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
+  const getRedirectTarget = () => {
+    try {
+      const params = new URLSearchParams(window.location.search);
+      const r = params.get("redirect") || sessionStorage.getItem("alnur_redirect_after_login");
+      if (r && r.startsWith("/")) return r;
+    } catch (e) {
+      void e;
+    }
+    return "/";
+  };
+
+  const isCheckoutRedirect = getRedirectTarget() === "/checkout";
+
   const handleSignUp = async (e?: React.FormEvent) => {
     if (e) e.preventDefault();
     setErrorMessage(null);
@@ -48,7 +61,17 @@ function SignUpPage() {
 
     if (result.success) {
       toast.success(`Account created! Ahlan wa Sahlan, ${name}.`);
-      navigate({ to: "/" });
+      const target = getRedirectTarget();
+      try {
+        sessionStorage.removeItem("alnur_redirect_after_login");
+      } catch (e) {
+        void e;
+      }
+      if (target === "/checkout") {
+        navigate({ to: "/checkout" });
+      } else {
+        navigate({ to: "/" });
+      }
     } else {
       setErrorMessage(result.error || "Unable to create account.");
       toast.error(result.error || "Sign up failed");
@@ -85,6 +108,16 @@ function SignUpPage() {
           />
 
           <div className="mt-6 space-y-4">
+            {/* Checkout Redirect Notice Banner */}
+            {isCheckoutRedirect && (
+              <div className="flex items-center gap-2.5 p-3 rounded-2xl bg-amber-500/10 border border-amber-500/30 text-amber-900 dark:text-amber-200 text-xs">
+                <Lock className="h-4 w-4 shrink-0 text-amber-600 dark:text-amber-400" />
+                <span className="flex-1 font-medium">
+                  Create an account to complete checkout and receive live order updates.
+                </span>
+              </div>
+            )}
+
             {/* Error Message Banner */}
             {errorMessage && (
               <div className="flex items-center gap-2.5 p-3 rounded-2xl bg-red-500/10 border border-red-500/30 text-red-600 dark:text-red-400 text-xs">
@@ -275,7 +308,19 @@ function SignUpPage() {
             {/* Already have an account? Sign In */}
             <div className="pt-3 text-center text-xs text-muted-foreground">
               <span>Already have an account? </span>
-              <Link to="/login" className="font-bold text-primary hover:underline">
+              <Link
+                to="/login"
+                onClick={() => {
+                  if (isCheckoutRedirect) {
+                    try {
+                      sessionStorage.setItem("alnur_redirect_after_login", "/checkout");
+                    } catch (e) {
+                      void e;
+                    }
+                  }
+                }}
+                className="font-bold text-primary hover:underline"
+              >
                 Sign In
               </Link>
             </div>

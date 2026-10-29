@@ -1,12 +1,21 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useState, useEffect } from "react";
 import { useCart } from "@/lib/cart";
 import { useAuth } from "@/lib/auth";
 import { getSavedAddresses, saveOrder } from "@/lib/orders";
 import { Nav, Footer } from "@/components/SiteChrome";
 import { motion } from "framer-motion";
-import { CheckCircle2, ChevronRight, Lock, ExternalLink, ShieldCheck } from "lucide-react";
-import { WHATSAPP } from "@/lib/collections";
+import {
+  CheckCircle2,
+  ChevronRight,
+  Lock,
+  ExternalLink,
+  ShieldCheck,
+  ShoppingBag,
+  ArrowRight,
+} from "lucide-react";
+import { WHATSAPP, waLink } from "@/lib/collections";
+import { toast } from "sonner";
 
 export const Route = createFileRoute("/checkout")({
   component: CheckoutPage,
@@ -15,8 +24,9 @@ export const Route = createFileRoute("/checkout")({
 const DEFAULT_SELAR_URL = "https://selar.com/m/fatima-muhammad3397104";
 
 function CheckoutPage() {
+  const navigate = useNavigate();
   const { cart, totalPrice, totalItems, clearCart } = useCart();
-  const { user, isAuthenticated } = useAuth();
+  const { user, isAuthenticated, isGuest } = useAuth();
   const [step, setStep] = useState(1);
   const [formData, setFormData] = useState({
     name: "",
@@ -25,8 +35,23 @@ function CheckoutPage() {
     address: "",
   });
 
+  // Guard: Users must sign in to access checkout
   useEffect(() => {
-    if (isAuthenticated && user) {
+    if (!isAuthenticated || isGuest) {
+      try {
+        sessionStorage.setItem("alnur_redirect_after_login", "/checkout");
+      } catch (e) {
+        void e;
+      }
+      toast.error("Sign in required to checkout", {
+        description: "Please sign in or create an account to finalize your order.",
+      });
+      navigate({ to: "/login" });
+    }
+  }, [isAuthenticated, isGuest, navigate]);
+
+  useEffect(() => {
+    if (isAuthenticated && user && !isGuest) {
       const addresses = getSavedAddresses();
       const defaultAddr =
         addresses.find((a) => a.isDefault)?.address || addresses[0]?.address || "";
@@ -38,9 +63,101 @@ function CheckoutPage() {
         address: prev.address || defaultAddr,
       }));
     }
-  }, [isAuthenticated, user]);
+  }, [isAuthenticated, user, isGuest]);
+
   const [loading, setLoading] = useState(false);
   const [completed, setCompleted] = useState(false);
+
+  // If user is a guest or unauthenticated, block checkout and render gated screen
+  if (!isAuthenticated || isGuest) {
+    return (
+      <main className="min-h-screen bg-background text-foreground font-body">
+        <Nav />
+        <div className="pt-32 pb-20 px-4 sm:px-6">
+          <div className="mx-auto max-w-lg text-center p-8 sm:p-10 rounded-3xl border border-primary/25 bg-card shadow-2xl">
+            <div className="h-16 w-16 mx-auto rounded-full bg-primary/10 text-primary flex items-center justify-center mb-5 border border-primary/20 shadow-sm">
+              <Lock className="h-7 w-7" />
+            </div>
+
+            <span className="text-[11px] uppercase tracking-[0.25em] text-primary font-bold block mb-1">
+              Member Verification
+            </span>
+            <h1 className="font-display text-2xl sm:text-3xl font-bold mb-3 text-foreground">
+              Sign In Required to Checkout
+            </h1>
+
+            <p className="text-sm text-muted-foreground mb-6 leading-relaxed">
+              Assalamu Alaikum! Your modest couture items are securely saved in your shopping bag.
+              Please sign in or create an account to verify your delivery address and finalize your
+              halal order.
+            </p>
+
+            {cart.length > 0 && (
+              <div className="mb-6 p-4 rounded-2xl bg-muted/40 border border-border/80 flex items-center justify-between text-left">
+                <div className="flex items-center gap-3">
+                  <div className="h-10 w-10 rounded-xl bg-primary/15 text-primary flex items-center justify-center font-bold">
+                    <ShoppingBag className="h-5 w-5" />
+                  </div>
+                  <div>
+                    <span className="text-xs font-semibold text-foreground block">
+                      {totalItems} {totalItems === 1 ? "garment" : "garments"} in bag
+                    </span>
+                    <span className="text-[11px] text-muted-foreground">
+                      Subtotal: ₦{totalPrice.toLocaleString()}
+                    </span>
+                  </div>
+                </div>
+                <span className="text-xs font-extrabold text-primary">Preserved</span>
+              </div>
+            )}
+
+            <div className="flex flex-col gap-3">
+              <Link
+                to="/login"
+                onClick={() => {
+                  try {
+                    sessionStorage.setItem("alnur_redirect_after_login", "/checkout");
+                  } catch (e) {
+                    void e;
+                  }
+                }}
+                className="w-full rounded-full bg-gold-grad py-3.5 font-bold text-primary-foreground shadow-gold hover:shadow-glow transition text-center text-sm flex items-center justify-center gap-2"
+              >
+                <span>Sign In to Complete Checkout</span>
+                <ArrowRight className="h-4 w-4" />
+              </Link>
+
+              <Link
+                to="/signup"
+                onClick={() => {
+                  try {
+                    sessionStorage.setItem("alnur_redirect_after_login", "/checkout");
+                  } catch (e) {
+                    void e;
+                  }
+                }}
+                className="w-full rounded-full border border-border bg-background py-3.5 font-bold text-foreground hover:bg-muted/40 transition text-center text-sm"
+              >
+                Create an Account
+              </Link>
+
+              <a
+                href={waLink(
+                  `Assalamu Alaikum! I would like to order my Al-Nur shopping bag (${totalItems} items, ₦${totalPrice.toLocaleString()}) via WhatsApp Concierge.`,
+                )}
+                target="_blank"
+                rel="noreferrer"
+                className="text-xs text-muted-foreground hover:text-primary transition mt-3 font-medium"
+              >
+                Or order directly via WhatsApp Concierge →
+              </a>
+            </div>
+          </div>
+        </div>
+        <Footer />
+      </main>
+    );
+  }
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });

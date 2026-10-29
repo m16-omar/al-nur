@@ -119,6 +119,18 @@ function ProductDetailsPage() {
 
   const handleBuyNow = () => {
     addToCart(resolvedProduct, quantity);
+    if (!isAuthenticated || isGuest) {
+      try {
+        sessionStorage.setItem("alnur_redirect_after_login", "/checkout");
+      } catch (e) {
+        void e;
+      }
+      toast.info("Sign in required to checkout", {
+        description: `"${resolvedProduct.name}" added to bag. Please sign in to finalize order.`,
+      });
+      navigate({ to: "/login" });
+      return;
+    }
     navigate({ to: "/checkout" });
   };
 

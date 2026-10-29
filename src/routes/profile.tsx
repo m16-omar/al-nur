@@ -80,6 +80,17 @@ function ProfilePage() {
     }
   };
 
+  const handleCartClick = () => {
+    if (isGuest) {
+      triggerGuestRestriction(
+        "Sign In Required to Checkout",
+        "Assalamu Alaikum! Your modest garments are securely saved. Please sign in or create an account to proceed to checkout and finalize your order.",
+      );
+    } else {
+      navigate({ to: "/checkout" });
+    }
+  };
+
   const handleOrdersClick = () => {
     if (isGuest) {
       triggerGuestRestriction(
@@ -206,9 +217,10 @@ function ProfilePage() {
         {/* 4 Metric Tiles matching Flutter ProfileView */}
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-6">
           {/* Cart Metric */}
-          <Link
-            to="/checkout"
-            className="p-4 rounded-2xl border border-border/80 bg-card hover:border-primary/40 text-center transition-all shadow-sm hover:scale-102"
+          <button
+            type="button"
+            onClick={handleCartClick}
+            className="p-4 rounded-2xl border border-border/80 bg-card hover:border-primary/40 text-center transition-all shadow-sm hover:scale-102 cursor-pointer"
           >
             <div className="h-8 w-8 rounded-full bg-primary/10 text-primary flex items-center justify-center mx-auto mb-2">
               <ShoppingBag className="h-4 w-4" />
@@ -217,7 +229,7 @@ function ProfilePage() {
               {totalItems}
             </span>
             <span className="text-[11px] text-muted-foreground">Shopping Bag</span>
-          </Link>
+          </button>
 
           {/* Orders Metric */}
           <button

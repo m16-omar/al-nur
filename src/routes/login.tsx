@@ -31,6 +31,19 @@ function LoginPage() {
     }
   }, [savedUser]);
 
+  const getRedirectTarget = () => {
+    try {
+      const params = new URLSearchParams(window.location.search);
+      const r = params.get("redirect") || sessionStorage.getItem("alnur_redirect_after_login");
+      if (r && r.startsWith("/")) return r;
+    } catch (e) {
+      void e;
+    }
+    return "/";
+  };
+
+  const isCheckoutRedirect = getRedirectTarget() === "/checkout";
+
   const handleLogin = async (e?: React.FormEvent) => {
     if (e) e.preventDefault();
     setErrorMessage(null);
@@ -42,7 +55,17 @@ function LoginPage() {
     if (result.success) {
       const displayName = savedUser?.name || (email.includes("@") ? email.split("@")[0] : "Member");
       toast.success(`Assalamu Alaikum! Welcome back, ${displayName}.`);
-      navigate({ to: "/" });
+      const target = getRedirectTarget();
+      try {
+        sessionStorage.removeItem("alnur_redirect_after_login");
+      } catch (e) {
+        void e;
+      }
+      if (target === "/checkout") {
+        navigate({ to: "/checkout" });
+      } else {
+        navigate({ to: "/" });
+      }
     } else {
       setErrorMessage(result.error || "Unable to sign in. Please verify your credentials.");
       toast.error(result.error || "Sign in failed");
@@ -112,6 +135,16 @@ function LoginPage() {
                 >
                   Switch
                 </button>
+              </div>
+            )}
+
+            {/* Checkout Redirect Notice Banner */}
+            {isCheckoutRedirect && (
+              <div className="flex items-center gap-2.5 p-3 rounded-2xl bg-amber-500/10 border border-amber-500/30 text-amber-900 dark:text-amber-200 text-xs">
+                <Lock className="h-4 w-4 shrink-0 text-amber-600 dark:text-amber-400" />
+                <span className="flex-1 font-medium">
+                  Please sign in to complete checkout. Your shopping bag items are preserved.
+                </span>
               </div>
             )}
 
@@ -233,7 +266,19 @@ function LoginPage() {
             {/* Don't have an account? Sign Up */}
             <div className="pt-4 text-center text-xs text-muted-foreground">
               <span>Don't have an account? </span>
-              <Link to="/signup" className="font-bold text-primary hover:underline">
+              <Link
+                to="/signup"
+                onClick={() => {
+                  if (isCheckoutRedirect) {
+                    try {
+                      sessionStorage.setItem("alnur_redirect_after_login", "/checkout");
+                    } catch (e) {
+                      void e;
+                    }
+                  }
+                }}
+                className="font-bold text-primary hover:underline"
+              >
                 Sign Up
               </Link>
             </div>

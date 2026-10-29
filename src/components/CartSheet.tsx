@@ -1,15 +1,30 @@
 import { motion, AnimatePresence } from "framer-motion";
 import { ShoppingCart, X, Plus, Minus, Trash2 } from "lucide-react";
 import { useCart } from "@/lib/cart";
+import { useAuth } from "@/lib/auth";
 import { WHATSAPP } from "@/lib/collections";
 import { useNavigate } from "@tanstack/react-router";
+import { toast } from "sonner";
 
 export function CartSheet({ open, setOpen }: { open: boolean; setOpen: (o: boolean) => void }) {
   const { cart, removeFromCart, updateQuantity, totalPrice, totalItems } = useCart();
+  const { isAuthenticated, isGuest } = useAuth();
   const navigate = useNavigate();
 
   const handleCheckout = () => {
     setOpen(false);
+    if (!isAuthenticated || isGuest) {
+      try {
+        sessionStorage.setItem("alnur_redirect_after_login", "/checkout");
+      } catch (e) {
+        void e;
+      }
+      toast.info("Sign in required to checkout", {
+        description: "Your shopping bag items are saved. Please sign in to verify delivery.",
+      });
+      navigate({ to: "/login" });
+      return;
+    }
     navigate({ to: "/checkout" });
   };
 

@@ -10,12 +10,25 @@ interface UserProfile {
 
 function checkAccessPermission(
   user: UserProfile | null,
-  action: "payment_methods" | "wishlist_sync" | "account_settings" | "save_size_profile",
-): { allowed: boolean; promptTitle?: string; promptMessage?: string } {
+  action:
+    | "payment_methods"
+    | "wishlist_sync"
+    | "account_settings"
+    | "save_size_profile"
+    | "checkout",
+): { allowed: boolean; promptTitle?: string; promptMessage?: string; redirectUrl?: string } {
   const isGuest = user === null || user.isGuest;
 
   if (isGuest) {
     switch (action) {
+      case "checkout":
+        return {
+          allowed: false,
+          promptTitle: "Sign In Required to Checkout",
+          promptMessage:
+            "Please sign in or create an account to verify your delivery address and finalize your order.",
+          redirectUrl: "/login?redirect=/checkout",
+        };
       case "payment_methods":
         return {
           allowed: false,
@@ -113,5 +126,19 @@ describe("Guest Restrictions & Modesty Sizing Calculator Suite", () => {
 
     // Clamping: Over 62 clamped to 62
     assert.strictEqual(calculateRecommendedAbayaSize(6, 4), 62);
+  });
+
+  test("16. Guest shoppers are strictly gated from accessing checkout (/checkout)", () => {
+    const result = checkAccessPermission(guestUser, "checkout");
+    assert.strictEqual(result.allowed, false);
+    assert.strictEqual(result.promptTitle, "Sign In Required to Checkout");
+    assert.strictEqual(result.redirectUrl, "/login?redirect=/checkout");
+    assert.match(result.promptMessage!, /verify your delivery address and finalize your order/i);
+  });
+
+  test("17. Authenticated members have immediate permission to access checkout", () => {
+    const result = checkAccessPermission(authenticatedUser, "checkout");
+    assert.strictEqual(result.allowed, true);
+    assert.strictEqual(result.redirectUrl, undefined);
   });
 });
