@@ -15,13 +15,16 @@ import {
   ArrowRight,
 } from "lucide-react";
 import { WHATSAPP, waLink } from "@/lib/collections";
+import {
+  DEFAULT_SELAR_STORE_URL,
+  getActiveSelarStoreUrl,
+  buildSelarCheckoutUrl,
+} from "@/lib/selar";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/checkout")({
   component: CheckoutPage,
 });
-
-const DEFAULT_SELAR_URL = "https://selar.com/m/fatima-muhammad3397104";
 
 function CheckoutPage() {
   const navigate = useNavigate();
@@ -211,21 +214,20 @@ function CheckoutPage() {
       ],
     });
 
-    const savedStoreUrl = localStorage.getItem("alnur_selar_store_url") || DEFAULT_SELAR_URL;
     const itemsSummary = cart.map((i) => `${i.quantity}x ${i.product.name}`).join(", ");
+    const selarUrl = buildSelarCheckoutUrl({
+      name: formData.name,
+      email: formData.email,
+      phone: formData.phone,
+      amount: totalPrice,
+      orderSummary: itemsSummary,
+      orderId,
+      origin: typeof window !== "undefined" ? window.location.origin : undefined,
+    });
 
-    // Construct pre-filled Selar checkout URL
-    const url = new URL(savedStoreUrl);
-    url.searchParams.set("name", formData.name);
-    url.searchParams.set("email", formData.email);
-    if (formData.phone) url.searchParams.set("phone", formData.phone);
-    url.searchParams.set("amount", totalPrice.toString());
-    url.searchParams.set("order_summary", itemsSummary);
-    url.searchParams.set("ref", orderId);
-
-    // Redirect to Selar Gateway
+    // Redirect to official Al-Nur Selar Gateway
     setTimeout(() => {
-      window.location.href = url.toString();
+      window.location.href = selarUrl;
     }, 600);
   };
 
@@ -414,10 +416,16 @@ function CheckoutPage() {
                           Active
                         </span>
                       </div>
-                      <p className="text-xs text-muted-foreground mb-4 leading-relaxed">
-                        Cards (Mastercard, Visa, Verve), Bank Transfers, and USSD supported securely
-                        via your verified Selar merchant account.
-                      </p>
+                      <div className="text-xs text-muted-foreground mb-4 space-y-1.5 leading-relaxed">
+                        <p>
+                          Cards (Mastercard, Visa, Verve), Bank Transfers, and USSD supported
+                          securely via your verified Selar merchant account.
+                        </p>
+                        <p className="text-[11px] font-mono text-primary flex items-center gap-1.5 pt-0.5">
+                          <span className="inline-block h-2 w-2 rounded-full bg-emerald-500 animate-pulse" />
+                          <span>Merchant: alnurstore (https://selar.com/m/alnurstore)</span>
+                        </p>
+                      </div>
 
                       <button
                         onClick={handleSelarPayment}

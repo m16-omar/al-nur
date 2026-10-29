@@ -26,6 +26,7 @@ import { Nav, Footer } from "@/components/SiteChrome";
 import { GuestPromptModal } from "@/components/GuestPromptModal";
 import { WishlistModal } from "@/components/WishlistModal";
 import { SizeGuideModal } from "@/components/SizeGuideModal";
+import { SelarGatewayModal } from "@/components/SelarGatewayModal";
 
 export const Route = createFileRoute("/profile")({
   component: ProfilePage,
@@ -39,6 +40,7 @@ function ProfilePage() {
 
   const [wishlistModalOpen, setWishlistModalOpen] = useState(false);
   const [sizeGuideOpen, setSizeGuideOpen] = useState(false);
+  const [selarModalOpen, setSelarModalOpen] = useState(false);
   const [guestPromptOpen, setGuestPromptOpen] = useState(false);
   const [guestPromptContent, setGuestPromptContent] = useState({ title: "", message: "" });
 
@@ -109,7 +111,7 @@ function ProfilePage() {
         "Sign in or create an account to securely save and manage your payment methods.",
       );
     } else {
-      toast.info("Saved Payment: Mastercard (Selar Halal Gateway active)");
+      setSelarModalOpen(true);
     }
   };
 
@@ -428,6 +430,9 @@ function ProfilePage() {
         onSelectSize={(s) => setSavedSize(s)}
         onGuestRestricted={triggerGuestRestriction}
       />
+
+      {/* Selar Gateway Modal */}
+      <SelarGatewayModal isOpen={selarModalOpen} onClose={() => setSelarModalOpen(false)} />
 
       {/* Guest Prompt Modal */}
       <GuestPromptModal
