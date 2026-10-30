@@ -1,4 +1,5 @@
 import React, { createContext, useContext, useState, useEffect } from "react";
+import { SERVERPOD_API_URL } from "@/lib/orders";
 
 export interface UserProfile {
   id: string;
@@ -183,6 +184,20 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       setSavedUser({ name: cleanName, email: cleanEmail });
     } catch (e) {
       console.error(e);
+    }
+
+    // Dispatch luxury VIP welcome email via Serverpod asynchronously
+    try {
+      fetch(`${SERVERPOD_API_URL}/user/sendWelcomeEmail`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          email: cleanEmail,
+          name: cleanName,
+        }),
+      }).catch((err) => console.warn("Welcome email notice:", err));
+    } catch (e) {
+      console.warn("Welcome email dispatch notice:", e);
     }
 
     return { success: true };

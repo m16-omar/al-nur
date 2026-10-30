@@ -211,36 +211,17 @@ function CheckoutPage() {
       user?.email,
     );
 
-    // 2. Persist order to PostgreSQL database via Serverpod so it appears immediately in Admin & User Orders
-    try {
-      await fetch(`${SERVERPOD_API_URL}/order/createOrder`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          customerEmail: formData.email.trim(),
-          customerName: formData.name.trim(),
-          customerPhone: formData.phone.trim() || "08031234567",
-          shippingAddress: formData.address.trim() || "Delivery destination on record",
-          totalAmount: finalAmount,
-          itemsJson: JSON.stringify(orderItems),
-          paymentReference: `MONNIFY-INIT-${orderId}`,
-        }),
-      });
-    } catch (e) {
-      console.warn("Notice persisting order to Serverpod:", e);
-    }
-
-    // 3. Request official authenticated checkout URL from Serverpod
+    // 2. Request official authenticated checkout URL from Serverpod Monnify gateway
     try {
       const redirectUrl = typeof window !== "undefined"
         ? `${window.location.origin}/orders?success=1&ref=${orderId}`
-        : "https://alnur-store.serverpod.space/app/checkout/success";
+        : "https://al-nur-tau.vercel.app/orders";
 
       const initRes = await fetch(`${SERVERPOD_API_URL}/order/initializeMonnifyPayment`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          amount: finalAmount,
+          amount: Number(finalAmount),
           customerName: formData.name.trim(),
           customerEmail: formData.email.trim(),
           orderRef: orderId,
@@ -252,6 +233,22 @@ function CheckoutPage() {
       if (initRes.ok) {
         const checkoutUrl = await initRes.json();
         if (checkoutUrl && typeof checkoutUrl === "string" && checkoutUrl.startsWith("http")) {
+          // Persist order in background without delaying user redirect
+          fetch(`${SERVERPOD_API_URL}/order/createOrder`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              idempotencyKey: `WEB-${orderId}-${Date.now()}`,
+              customerEmail: formData.email.trim(),
+              customerName: formData.name.trim(),
+              customerPhone: formData.phone.trim() || "08031234567",
+              shippingAddress: formData.address.trim() || "Delivery destination on record",
+              totalAmount: Number(finalAmount),
+              itemsJson: JSON.stringify(orderItems),
+              paymentReference: `MONNIFY-INIT-${orderId}`,
+            }),
+          }).catch((err) => console.warn("Background order persist notice:", err));
+
           clearCart();
           toast.success("Redirecting to Monnify Secure Gateway...");
           window.location.href = checkoutUrl;
@@ -262,76 +259,8 @@ function CheckoutPage() {
       console.warn("Serverpod Monnify payment init notice:", e);
     }
 
-    // 4. Fallback to client SDK if available
-    interface MonnifyResponse {
-      paymentStatus?: string;
-      status?: string;
-    }
-    interface MonnifySDKWindow extends Window {
-      MonnifySDK?: {
-        initialize: (config: Record<string, unknown>) => void;
-      };
-    }
-    const win = typeof window !== "undefined" ? (window as unknown as MonnifySDKWindow) : null;
-    if (win?.MonnifySDK) {
-      try {
-        const cleanRef = `ALN${Date.now()}`;
-        win.MonnifySDK.initialize({
-          amount: finalAmount,
-          currency: "NGN",
-          reference: cleanRef,
-          customerName: formData.name,
-          customerFullName: formData.name,
-          customerEmail: formData.email,
-          customerMobileNumber: formData.phone || "08031902398",
-          apiKey: "MK_TEST_F0NB310FSJ",
-          contractCode: "6355760337",
-          paymentDescription: `Al-Nur Order - ${itemsSummary}`.slice(0, 60),
-          isTestMode: true,
-          paymentMethods: ["CARD", "ACCOUNT_TRANSFER", "USSD"],
-          metadata: {
-            orderId,
-            items: itemsSummary,
-          },
-          metaData: {
-            orderId,
-            items: itemsSummary,
-          },
-          onComplete: function (response: MonnifyResponse) {
-            setLoading(false);
-            if (response && (response.paymentStatus === "PAID" || response.status === "SUCCESS")) {
-              clearCart();
-              setCompleted(true);
-              toast.success("Payment Received! Your Al-Nur order is confirmed.");
-            } else {
-              toast.error("Payment could not be completed. You can pay securely with Selar.", {
-                action: {
-                  label: "Use Selar",
-                  onClick: () => handleSelarPayment(),
-                },
-              });
-            }
-          },
-          onClose: function () {
-            setLoading(false);
-            toast.info(
-              "Monnify gateway closed. You can switch to Selar or WhatsApp Concierge anytime.",
-              {
-                action: {
-                  label: "Pay with Selar",
-                  onClick: () => handleSelarPayment(),
-                },
-              },
-            );
-          },
-        });
-        return;
-      } catch (err) {
-        console.error("Monnify SDK fallback notice:", err);
-      }
-    }
-
-    // Fallback if SDK blocked or loading
+    // 3. Resilient fallback to Selar if Monnify sandbox is unavailable
+    toast.info("Monnify gateway unavailable. Redirecting to Selar Halal Gateway...");
     handleSelarPayment();
   };
 
