@@ -394,6 +394,37 @@ function ProfilePage() {
           </div>
         </div>
 
+        {/* Store Admin & Fulfillment Portal */}
+        <div className="mb-6">
+          <h3 className="text-xs font-bold text-muted-foreground uppercase tracking-widest mb-3 px-1">
+            Store Management
+          </h3>
+          <div className="rounded-3xl border border-border/80 bg-card divide-y divide-border/60 overflow-hidden shadow-sm">
+            <Link
+              to="/admin"
+              className="w-full p-4 flex items-center justify-between hover:bg-muted/30 transition-colors text-left"
+            >
+              <div className="flex items-center gap-3">
+                <div className="h-9 w-9 rounded-xl bg-emerald-500/10 text-emerald-600 flex items-center justify-center">
+                  <Package className="h-4 w-4" />
+                </div>
+                <div>
+                  <p className="text-xs sm:text-sm font-bold text-foreground flex items-center gap-2">
+                    <span>Admin Orders & Fulfillment</span>
+                    <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-500/10 text-emerald-600 border border-emerald-500/25">
+                      Live
+                    </span>
+                  </p>
+                  <p className="text-[11px] text-muted-foreground">
+                    Manage customer orders, update dispatch statuses & print waybills
+                  </p>
+                </div>
+              </div>
+              <ChevronRight className="h-4 w-4 text-muted-foreground" />
+            </Link>
+          </div>
+        </div>
+
         {/* Developer controls: strictly restricted to non-guest */}
         {isAuthenticated && !isGuest && (
           <div className="mb-6">
