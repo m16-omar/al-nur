@@ -7,17 +7,14 @@ import {
   CheckCircle2,
   Clock,
   RotateCw,
-  Phone,
-  MapPin,
-  ExternalLink,
   Search,
-  Printer,
-  MessageCircle,
+  ExternalLink,
   ShieldCheck,
-  CreditCard,
-  DollarSign,
-  AlertCircle,
-  Eye,
+  Printer,
+  Phone,
+  MessageCircle,
+  MapPin,
+  Navigation,
 } from "lucide-react";
 import { toast } from "sonner";
 import { Nav, Footer } from "@/components/SiteChrome";
@@ -60,7 +57,7 @@ function AdminOrdersPage() {
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [activeTab, setActiveTab] = useState<
-    "all" | "processing" | "dispatched" | "delivered" | "paid" | "pending"
+    "all" | "processing" | "shipped" | "out_for_delivery" | "delivered" | "paid" | "pending"
   >("all");
   const [selectedOrder, setSelectedOrder] = useState<ServerpodStoreOrder | null>(null);
 
@@ -70,7 +67,7 @@ function AdminOrdersPage() {
       const res = await fetch(`${SERVERPOD_API_URL}/order/getOrders`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({}),
+        body: JSON.stringify({ adminKey: "AlNur2026!" }),
       });
       if (res.ok) {
         const data = await res.json();
@@ -150,17 +147,31 @@ function AdminOrdersPage() {
     toast.success(`Payment status set to ${newStatus.toUpperCase()}! 💳`, { id: "pay-toast" });
   };
 
+  const normalizeStatus = (status?: string | null) => {
+    if (!status) return "processing";
+    const lower = status.toLowerCase().trim();
+    if (lower === "shipped" || lower === "dispatched" || lower === "transit" || lower === "in_transit") {
+      return "shipped";
+    }
+    if (lower === "out_for_delivery" || lower === "outfordelivery" || lower === "delivery") {
+      return "out_for_delivery";
+    }
+    if (lower === "delivered" || lower === "completed" || lower === "fulfilled") {
+      return "delivered";
+    }
+    return "processing";
+  };
+
   const filteredOrders = orders.filter((o) => {
-    // Tab filter
-    const fulfill = (o.fulfillmentStatus || "processing").toLowerCase();
+    const fulfill = normalizeStatus(o.fulfillmentStatus);
     const pay = (o.paymentStatus || "pending").toLowerCase();
     if (activeTab === "processing" && fulfill !== "processing") return false;
-    if (activeTab === "dispatched" && fulfill !== "dispatched") return false;
+    if (activeTab === "shipped" && fulfill !== "shipped") return false;
+    if (activeTab === "out_for_delivery" && fulfill !== "out_for_delivery") return false;
     if (activeTab === "delivered" && fulfill !== "delivered") return false;
     if (activeTab === "paid" && pay !== "paid") return false;
     if (activeTab === "pending" && pay !== "pending") return false;
 
-    // Search filter
     if (searchQuery) {
       const q = searchQuery.toLowerCase();
       const ref = (o.orderRef || "").toLowerCase();
@@ -184,13 +195,16 @@ function AdminOrdersPage() {
     .reduce((sum, o) => sum + (Number(o.totalAmount) || 0), 0);
 
   const processingCount = orders.filter(
-    (o) => (o.fulfillmentStatus || "processing").toLowerCase() === "processing"
+    (o) => normalizeStatus(o.fulfillmentStatus) === "processing"
   ).length;
-  const dispatchedCount = orders.filter(
-    (o) => (o.fulfillmentStatus || "").toLowerCase() === "dispatched"
+  const shippedCount = orders.filter(
+    (o) => normalizeStatus(o.fulfillmentStatus) === "shipped"
+  ).length;
+  const outForDeliveryCount = orders.filter(
+    (o) => normalizeStatus(o.fulfillmentStatus) === "out_for_delivery"
   ).length;
   const deliveredCount = orders.filter(
-    (o) => (o.fulfillmentStatus || "").toLowerCase() === "delivered"
+    (o) => normalizeStatus(o.fulfillmentStatus) === "delivered"
   ).length;
 
   const printWaybillSlip = (order: ServerpodStoreOrder) => {
@@ -205,11 +219,11 @@ function AdminOrdersPage() {
       .map(
         (it) => `
         <tr>
-          <td style="padding:10px;border-bottom:1px solid #E5E7EB;font-weight:bold;">${it.name || "Artisanal Item"}</td>
-          <td style="padding:10px;border-bottom:1px solid #E5E7EB;font-size:12px;color:#6B7280;">Size ${it.selectedSize || "Standard"} • ${it.selectedColor || "Default"}</td>
-          <td style="padding:10px;border-bottom:1px solid #E5E7EB;text-align:center;">${it.quantity || 1}</td>
-          <td style="padding:10px;border-bottom:1px solid #E5E7EB;text-align:right;font-family:monospace;">₦${(it.price || 0).toLocaleString()}</td>
-          <td style="padding:10px;border-bottom:1px solid #E5E7EB;text-align:right;font-family:monospace;font-weight:bold;">₦${((it.quantity || 1) * (it.price || 0)).toLocaleString()}</td>
+          <td style="padding:10px;border-bottom:1px solid #EBE4D8;font-weight:bold;">${it.name || "Artisanal Item"}</td>
+          <td style="padding:10px;border-bottom:1px solid #EBE4D8;font-size:12px;color:#8F581B;">Size ${it.selectedSize || "Standard"} • ${it.selectedColor || "Default"}</td>
+          <td style="padding:10px;border-bottom:1px solid #EBE4D8;text-align:center;">${it.quantity || 1}</td>
+          <td style="padding:10px;border-bottom:1px solid #EBE4D8;text-align:right;font-family:monospace;">₦${(it.price || 0).toLocaleString()}</td>
+          <td style="padding:10px;border-bottom:1px solid #EBE4D8;text-align:right;font-family:monospace;font-weight:bold;">₦${((it.quantity || 1) * (it.price || 0)).toLocaleString()}</td>
         </tr>
       `
       )
@@ -219,28 +233,27 @@ function AdminOrdersPage() {
       <!DOCTYPE html>
       <html>
       <head>
-        <title>Al-Nur Packing Slip #${order.orderRef}</title>
+        <title>Al-Nur Store Waybill #${order.orderRef}</title>
         <style>
-          body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; color: #111827; padding: 40px; margin: 0; }
-          .header { display: flex; justify-content: space-between; border-bottom: 2px solid #0B291E; padding-bottom: 20px; margin-bottom: 24px; }
-          .title { font-size: 24px; font-weight: bold; color: #0B291E; }
-          .badge { display: inline-block; padding: 4px 8px; border-radius: 6px; font-size: 11px; font-weight: bold; background: #ECFDF5; color: #065F46; }
-          .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 24px; }
-          .card { background: #F9FAFB; padding: 16px; border-radius: 8px; border: 1px solid #E5E7EB; font-size: 13px; }
-          table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 13px; }
-          th { background: #F3F4F6; text-align: left; padding: 10px; font-size: 11px; text-transform: uppercase; color: #4B5563; }
+          body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; padding: 30px; color: #2E110A; background: #FCF8F1; }
+          .header { border-bottom: 2px solid #C87A1E; padding-bottom: 15px; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: flex-start; }
+          .title { font-size: 22px; font-weight: 800; color: #C87A1E; letter-spacing: 2px; }
+          .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 20px; }
+          .card { background: #FFFFFF; padding: 15px; border-radius: 8px; border: 1px solid #EBE4D8; font-size: 13px; line-height: 1.6; }
+          table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 13px; background: #FFFFFF; border-radius: 8px; overflow: hidden; }
+          th { background: #F9EFE4; text-align: left; padding: 10px; font-size: 11px; text-transform: uppercase; color: #8F581B; }
         </style>
       </head>
       <body>
         <div class="header">
           <div>
             <div class="title">AL-NUR STORE</div>
-            <div style="font-size:12px;color:#6B7280;margin-top:4px;">Modest Haute Couture Logistics & Dispatch</div>
+            <div style="font-size:12px;color:#8F581B;margin-top:4px;">Modest Haute Couture Logistics & Dispatch</div>
           </div>
           <div style="text-align:right;">
-            <h3 style="margin:0;color:#0B291E;">WAYBILL & PACKING SLIP</h3>
-            <div style="font-family:monospace;font-weight:bold;color:#059669;font-size:16px;">#${order.orderRef}</div>
-            <div style="font-size:11px;color:#6B7280;margin-top:4px;">${new Date(order.createdAt || Date.now()).toLocaleDateString("en-GB")}</div>
+            <h3 style="margin:0;color:#2E110A;">WAYBILL & PACKING SLIP</h3>
+            <div style="font-family:monospace;font-weight:bold;color:#C87A1E;font-size:16px;">#${order.orderRef}</div>
+            <div style="font-size:11px;color:#8F581B;margin-top:4px;">${new Date(order.createdAt || Date.now()).toLocaleDateString("en-GB")}</div>
           </div>
         </div>
 
@@ -255,7 +268,7 @@ function AdminOrdersPage() {
           <div class="card">
             <strong>DELIVERY ADDRESS</strong><br>
             ${order.shippingAddress}<br>
-            <span style="font-size:11px;color:#059669;margin-top:8px;display:block;">Package: Handcrafted Gold-Foil Heirloom Box</span>
+            <span style="font-size:11px;color:#C87A1E;margin-top:8px;display:block;font-weight:bold;">Package: Handcrafted Gold-Foil Heirloom Box</span>
           </div>
         </div>
 
@@ -275,8 +288,8 @@ function AdminOrdersPage() {
         </table>
 
         <div style="text-align:right;margin-top:24px;">
-          <span style="font-size:13px;color:#6B7280;">Total Paid:</span>
-          <div style="font-size:24px;font-weight:bold;font-family:monospace;color:#0B291E;">₦${(order.totalAmount || 0).toLocaleString()}</div>
+          <span style="font-size:13px;color:#8F581B;">Total Paid:</span>
+          <div style="font-size:24px;font-weight:bold;font-family:monospace;color:#2E110A;">₦${(order.totalAmount || 0).toLocaleString()}</div>
         </div>
 
         <script>
@@ -307,7 +320,7 @@ function AdminOrdersPage() {
                 <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-foreground font-display">
                   Store Orders & Fulfillment
                 </h1>
-                <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-emerald-500/10 text-emerald-600 border border-emerald-500/30">
+                <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-primary/10 text-primary border border-primary/30">
                   <ShieldCheck className="h-3 w-3" />
                   <span>Admin Mode</span>
                 </span>
@@ -352,22 +365,22 @@ function AdminOrdersPage() {
 
           <div className="p-4 rounded-2xl border border-border bg-card/60 backdrop-blur-xs">
             <span className="text-[11px] text-muted-foreground block font-medium">Paid Revenue</span>
-            <span className="text-2xl font-extrabold text-emerald-600 dark:text-emerald-400 font-display font-mono mt-0.5 block">
+            <span className="text-2xl font-extrabold text-primary font-display font-mono mt-0.5 block">
               ₦{totalRevenue.toLocaleString()}
             </span>
           </div>
 
           <div className="p-4 rounded-2xl border border-border bg-card/60 backdrop-blur-xs">
             <span className="text-[11px] text-muted-foreground block font-medium">Processing / Tailoring</span>
-            <span className="text-2xl font-extrabold text-blue-600 dark:text-blue-400 font-display mt-0.5 block">
+            <span className="text-2xl font-extrabold text-amber-600 dark:text-amber-400 font-display mt-0.5 block">
               {processingCount}
             </span>
           </div>
 
           <div className="p-4 rounded-2xl border border-border bg-card/60 backdrop-blur-xs">
             <span className="text-[11px] text-muted-foreground block font-medium">Dispatched & Delivered</span>
-            <span className="text-2xl font-extrabold text-purple-600 dark:text-purple-400 font-display mt-0.5 block">
-              {dispatchedCount + deliveredCount}
+            <span className="text-2xl font-extrabold text-primary font-display mt-0.5 block">
+              {shippedCount + outForDeliveryCount + deliveredCount}
             </span>
           </div>
         </div>
@@ -378,7 +391,8 @@ function AdminOrdersPage() {
             {[
               { id: "all", label: `All (${orders.length})` },
               { id: "processing", label: `Processing (${processingCount})` },
-              { id: "dispatched", label: `Dispatched (${dispatchedCount})` },
+              { id: "shipped", label: `Shipped (${shippedCount})` },
+              { id: "out_for_delivery", label: `Out for Delivery (${outForDeliveryCount})` },
               { id: "delivered", label: `Delivered (${deliveredCount})` },
               { id: "paid", label: "Paid" },
               { id: "pending", label: "Pending" },
@@ -388,7 +402,14 @@ function AdminOrdersPage() {
                 type="button"
                 onClick={() =>
                   setActiveTab(
-                    tab.id as "all" | "processing" | "dispatched" | "delivered" | "paid" | "pending"
+                    tab.id as
+                      | "all"
+                      | "processing"
+                      | "shipped"
+                      | "out_for_delivery"
+                      | "delivered"
+                      | "paid"
+                      | "pending"
                   )
                 }
                 className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all shrink-0 ${
@@ -436,6 +457,7 @@ function AdminOrdersPage() {
               const waLink = cleanPhone
                 ? `https://wa.me/${cleanPhone}?text=${encodeURIComponent(`Assalamu alaykum ${order.customerName}, this is Al-Nur Store concierge regarding your order #${order.orderRef}.`)}`
                 : null;
+              const normFulfill = normalizeStatus(order.fulfillmentStatus);
 
               return (
                 <div
@@ -450,14 +472,16 @@ function AdminOrdersPage() {
                         </span>
                         <span
                           className={`px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider ${
-                            order.fulfillmentStatus === "delivered"
+                            normFulfill === "delivered"
                               ? "bg-emerald-500/10 text-emerald-600 border border-emerald-500/30"
-                              : order.fulfillmentStatus === "dispatched"
+                              : normFulfill === "out_for_delivery"
                               ? "bg-purple-500/10 text-purple-600 border border-purple-500/30"
-                              : "bg-blue-500/10 text-blue-600 border border-blue-500/30"
+                              : normFulfill === "shipped"
+                              ? "bg-blue-500/10 text-blue-600 border border-blue-500/30"
+                              : "bg-amber-500/10 text-amber-600 border border-amber-500/30"
                           }`}
                         >
-                          {order.fulfillmentStatus || "Processing"}
+                          {normFulfill.replace(/_/g, " ")}
                         </span>
                         <span
                           className={`px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider ${
@@ -576,17 +600,27 @@ function AdminOrdersPage() {
                   <div className="flex flex-wrap items-center justify-between gap-2 pt-4 mt-4 border-t border-border/60">
                     <div className="flex items-center gap-2">
                       <span className="text-[11px] text-muted-foreground font-semibold">Fulfillment:</span>
-                      {order.fulfillmentStatus === "processing" && (
+                      {normFulfill === "processing" && (
                         <button
                           type="button"
-                          onClick={() => handleUpdateFulfillment(order.orderRef, "dispatched")}
-                          className="px-3 py-1 rounded-xl bg-purple-500/10 text-purple-600 dark:text-purple-400 border border-purple-500/30 text-xs font-bold hover:bg-purple-500/20 transition-all flex items-center gap-1.5"
+                          onClick={() => handleUpdateFulfillment(order.orderRef, "shipped")}
+                          className="px-3 py-1 rounded-xl bg-blue-500/10 text-blue-600 dark:text-blue-400 border border-blue-500/30 text-xs font-bold hover:bg-blue-500/20 transition-all flex items-center gap-1.5"
                         >
                           <Truck className="h-3.5 w-3.5" />
-                          <span>Dispatch to Courier</span>
+                          <span>Dispatch & Ship</span>
                         </button>
                       )}
-                      {order.fulfillmentStatus === "dispatched" && (
+                      {normFulfill === "shipped" && (
+                        <button
+                          type="button"
+                          onClick={() => handleUpdateFulfillment(order.orderRef, "out_for_delivery")}
+                          className="px-3 py-1 rounded-xl bg-purple-500/10 text-purple-600 dark:text-purple-400 border border-purple-500/30 text-xs font-bold hover:bg-purple-500/20 transition-all flex items-center gap-1.5"
+                        >
+                          <Navigation className="h-3.5 w-3.5" />
+                          <span>Out for Delivery</span>
+                        </button>
+                      )}
+                      {normFulfill === "out_for_delivery" && (
                         <button
                           type="button"
                           onClick={() => handleUpdateFulfillment(order.orderRef, "delivered")}
@@ -596,7 +630,7 @@ function AdminOrdersPage() {
                           <span>Mark as Delivered</span>
                         </button>
                       )}
-                      {order.fulfillmentStatus === "delivered" && (
+                      {normFulfill === "delivered" && (
                         <span className="text-xs text-emerald-600 font-bold flex items-center gap-1">
                           <CheckCircle2 className="h-3.5 w-3.5" />
                           <span>Completed & Handed Over</span>
@@ -609,7 +643,7 @@ function AdminOrdersPage() {
                         <button
                           type="button"
                           onClick={() => handleUpdatePayment(order.orderRef, "paid")}
-                          className="px-3 py-1 rounded-xl bg-emerald-600 text-white text-xs font-bold hover:bg-emerald-700 transition-all"
+                          className="px-3 py-1 rounded-xl bg-primary text-primary-foreground text-xs font-bold hover:opacity-90 transition-all"
                         >
                           Mark Paid
                         </button>

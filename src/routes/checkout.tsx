@@ -2,7 +2,7 @@ import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useState, useEffect } from "react";
 import { useCart } from "@/lib/cart";
 import { useAuth } from "@/lib/auth";
-import { getSavedAddresses, saveOrder } from "@/lib/orders";
+import { getSavedAddresses, saveOrder, SERVERPOD_API_URL, buildOrderTimeline } from "@/lib/orders";
 import { Nav, Footer } from "@/components/SiteChrome";
 import { motion } from "framer-motion";
 import {
@@ -170,7 +170,7 @@ function CheckoutPage() {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  const handleMonnifyPayment = () => {
+  const handleMonnifyPayment = async () => {
     if (!formData.name || !formData.email) {
       toast.error("Please provide your name and email address.");
       return;
@@ -180,50 +180,89 @@ function CheckoutPage() {
     const orderId = `ALN-${Math.floor(10000 + Math.random() * 90000)}`;
     const trackingNum = `ALN-TRK-${Math.floor(1000000 + Math.random() * 9000000)}`;
     const itemsSummary = cart.map((i) => `${i.quantity}x ${i.product.name}`).join(", ");
+    const finalAmount = totalPrice + 2500;
+    const orderItems = cart.map((i) => ({
+      name: i.product.name,
+      category: i.product.category,
+      quantity: i.quantity,
+      price: Number(i.product.price.replace(/[^0-9]/g, "")),
+      imageUrl: i.product.img,
+    }));
 
-    saveOrder({
-      id: orderId,
-      orderDate: "Today, Just now",
-      status: "processing",
-      trackingNumber: trackingNum,
-      deliveryAddress: formData.address || "Plot 14, Admiralty Way, Lekki Phase 1, Lagos",
-      estimatedDelivery: "In 2-3 business days",
-      subtotal: totalPrice,
-      shippingFee: 2500,
-      totalAmount: totalPrice + 2500,
-      courierName: "Ibrahim",
-      courierPhone: "+234 803 123 4567",
-      items: cart.map((i) => ({
-        name: i.product.name,
-        category: i.product.category,
-        quantity: i.quantity,
-        price: Number(i.product.price.replace(/[^0-9]/g, "")),
-        imageUrl: i.product.img,
-      })),
-      timeline: [
-        {
-          title: "Order Placed",
-          subtitle: "Payment initiated via Monnify Gateway",
-          date: "Just now",
-          isCompleted: true,
-          isCurrent: true,
-        },
-        {
-          title: "Custom Sizing & Quality Check",
-          subtitle: "Scheduled with Al-Nur Master Tailors",
-          date: "Pending",
-          isCompleted: false,
-        },
-        {
-          title: "Courier Dispatch",
-          subtitle: "Waybill assigned for delivery",
-          date: "Pending",
-          isCompleted: false,
-        },
-      ],
-    });
+    // 1. Save in user-isolated local storage
+    saveOrder(
+      {
+        id: orderId,
+        orderDate: "Today, Just now",
+        status: "processing",
+        trackingNumber: trackingNum,
+        deliveryAddress: formData.address || "Delivery destination on record",
+        estimatedDelivery: "In 2-3 business days",
+        subtotal: totalPrice,
+        shippingFee: 2500,
+        totalAmount: finalAmount,
+        courierName: "Ibrahim",
+        courierPhone: "+234 803 123 4567",
+        items: orderItems,
+        timeline: buildOrderTimeline("processing", "Just now"),
+        paymentStatus: "pending",
+        paymentReference: `MONNIFY-INIT-${orderId}`,
+      },
+      user?.email,
+    );
 
-    // Check if Monnify SDK is loaded
+    // 2. Persist order to PostgreSQL database via Serverpod so it appears immediately in Admin & User Orders
+    try {
+      await fetch(`${SERVERPOD_API_URL}/order/createOrder`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          customerEmail: formData.email.trim(),
+          customerName: formData.name.trim(),
+          customerPhone: formData.phone.trim() || "08031234567",
+          shippingAddress: formData.address.trim() || "Delivery destination on record",
+          totalAmount: finalAmount,
+          itemsJson: JSON.stringify(orderItems),
+          paymentReference: `MONNIFY-INIT-${orderId}`,
+        }),
+      });
+    } catch (e) {
+      console.warn("Notice persisting order to Serverpod:", e);
+    }
+
+    // 3. Request official authenticated checkout URL from Serverpod
+    try {
+      const redirectUrl = typeof window !== "undefined"
+        ? `${window.location.origin}/orders?success=1&ref=${orderId}`
+        : "https://alnur-store.serverpod.space/app/checkout/success";
+
+      const initRes = await fetch(`${SERVERPOD_API_URL}/order/initializeMonnifyPayment`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          amount: finalAmount,
+          customerName: formData.name.trim(),
+          customerEmail: formData.email.trim(),
+          orderRef: orderId,
+          customerPhone: formData.phone.trim() || "08031234567",
+          redirectUrl,
+        }),
+      });
+
+      if (initRes.ok) {
+        const checkoutUrl = await initRes.json();
+        if (checkoutUrl && typeof checkoutUrl === "string" && checkoutUrl.startsWith("http")) {
+          clearCart();
+          toast.success("Redirecting to Monnify Secure Gateway...");
+          window.location.href = checkoutUrl;
+          return;
+        }
+      }
+    } catch (e) {
+      console.warn("Serverpod Monnify payment init notice:", e);
+    }
+
+    // 4. Fallback to client SDK if available
     interface MonnifyResponse {
       paymentStatus?: string;
       status?: string;
@@ -238,7 +277,7 @@ function CheckoutPage() {
       try {
         const cleanRef = `ALN${Date.now()}`;
         win.MonnifySDK.initialize({
-          amount: totalPrice,
+          amount: finalAmount,
           currency: "NGN",
           reference: cleanRef,
           customerName: formData.name,
@@ -288,7 +327,7 @@ function CheckoutPage() {
         });
         return;
       } catch (err) {
-        console.error("Monnify SDK initialization notice:", err);
+        console.error("Monnify SDK fallback notice:", err);
       }
     }
 
@@ -296,53 +335,60 @@ function CheckoutPage() {
     handleSelarPayment();
   };
 
-  const handleSelarPayment = () => {
+  const handleSelarPayment = async () => {
     setLoading(true);
 
     const orderId = `ALN-${Math.floor(10000 + Math.random() * 90000)}`;
     const trackingNum = `ALN-TRK-${Math.floor(1000000 + Math.random() * 9000000)}`;
+    const finalAmount = totalPrice + 2500;
+    const orderItems = cart.map((i) => ({
+      name: i.product.name,
+      category: i.product.category,
+      quantity: i.quantity,
+      price: Number(i.product.price.replace(/[^0-9]/g, "")),
+      imageUrl: i.product.img,
+    }));
 
-    saveOrder({
-      id: orderId,
-      orderDate: "Today, Just now",
-      status: "processing",
-      trackingNumber: trackingNum,
-      deliveryAddress: formData.address || "Plot 14, Admiralty Way, Lekki Phase 1, Lagos",
-      estimatedDelivery: "In 2-3 business days",
-      subtotal: totalPrice,
-      shippingFee: 2500,
-      totalAmount: totalPrice + 2500,
-      courierName: "Ibrahim",
-      courierPhone: "+234 803 123 4567",
-      items: cart.map((i) => ({
-        name: i.product.name,
-        category: i.product.category,
-        quantity: i.quantity,
-        price: Number(i.product.price.replace(/[^0-9]/g, "")),
-        imageUrl: i.product.img,
-      })),
-      timeline: [
-        {
-          title: "Order Placed",
-          subtitle: "Payment initiated via Selar Halal Gateway",
-          date: "Just now",
-          isCompleted: true,
-          isCurrent: true,
-        },
-        {
-          title: "Custom Sizing & Quality Check",
-          subtitle: "Scheduled with Al-Nur Master Tailors",
-          date: "Pending",
-          isCompleted: false,
-        },
-        {
-          title: "Courier Dispatch",
-          subtitle: "Waybill assigned for delivery",
-          date: "Pending",
-          isCompleted: false,
-        },
-      ],
-    });
+    // 1. Save in user-isolated local storage
+    saveOrder(
+      {
+        id: orderId,
+        orderDate: "Today, Just now",
+        status: "processing",
+        trackingNumber: trackingNum,
+        deliveryAddress: formData.address || "Delivery destination on record",
+        estimatedDelivery: "In 2-3 business days",
+        subtotal: totalPrice,
+        shippingFee: 2500,
+        totalAmount: finalAmount,
+        courierName: "Ibrahim",
+        courierPhone: "+234 803 123 4567",
+        items: orderItems,
+        timeline: buildOrderTimeline("processing", "Just now"),
+        paymentStatus: "pending",
+        paymentReference: `SELAR-INIT-${orderId}`,
+      },
+      user?.email,
+    );
+
+    // 2. Persist order to PostgreSQL database via Serverpod
+    try {
+      await fetch(`${SERVERPOD_API_URL}/order/createOrder`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          customerEmail: formData.email.trim(),
+          customerName: formData.name.trim(),
+          customerPhone: formData.phone.trim() || "08031234567",
+          shippingAddress: formData.address.trim() || "Delivery destination on record",
+          totalAmount: finalAmount,
+          itemsJson: JSON.stringify(orderItems),
+          paymentReference: `SELAR-INIT-${orderId}`,
+        }),
+      });
+    } catch (e) {
+      console.warn("Notice persisting order to Serverpod:", e);
+    }
 
     const itemsSummary = cart.map((i) => `${i.quantity}x ${i.product.name}`).join(", ");
     const selarUrl = buildSelarCheckoutUrl({
@@ -358,7 +404,7 @@ function CheckoutPage() {
     // Redirect to official Al-Nur Selar Gateway
     setTimeout(() => {
       window.location.href = selarUrl;
-    }, 600);
+    }, 400);
   };
 
   if (completed) {

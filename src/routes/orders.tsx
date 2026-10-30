@@ -1,5 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useState } from "react";
+import { useState, useEffect, useCallback } from "react";
 import {
   ArrowLeft,
   Package,
@@ -9,13 +9,18 @@ import {
   RotateCw,
   Phone,
   MapPin,
-  ExternalLink,
   ChevronDown,
   ChevronUp,
+  Navigation,
 } from "lucide-react";
 import { toast } from "sonner";
 import { useAuth } from "@/lib/auth";
-import { getSavedOrders, StoreOrder } from "@/lib/orders";
+import {
+  fetchLiveUserOrders,
+  getSavedOrders,
+  StoreOrder,
+  FulfillmentStatus,
+} from "@/lib/orders";
 import { Nav, Footer } from "@/components/SiteChrome";
 import { GuestPromptModal } from "@/components/GuestPromptModal";
 
@@ -24,24 +29,47 @@ export const Route = createFileRoute("/orders")({
 });
 
 function OrdersPage() {
-  const { isGuest, isAuthenticated } = useAuth();
-  const [orders, setOrders] = useState<StoreOrder[]>(getSavedOrders);
-  const [activeTab, setActiveTab] = useState<"all" | "in_transit" | "processing" | "delivered">(
-    "all",
-  );
+  const { user, isGuest, isAuthenticated } = useAuth();
+  const [orders, setOrders] = useState<StoreOrder[]>([]);
+  const [activeTab, setActiveTab] = useState<
+    "all" | "processing" | "shipped" | "out_for_delivery" | "delivered"
+  >("all");
   const [isRefreshing, setIsRefreshing] = useState(false);
-  const [expandedOrderId, setExpandedOrderId] = useState<string | null>("ALN-84920");
-
-  // Guest restriction prompt
+  const [expandedOrderId, setExpandedOrderId] = useState<string | null>(null);
   const [guestPromptOpen, setGuestPromptOpen] = useState(false);
 
+  const loadOrders = useCallback(
+    async (showToast = false) => {
+      if (!isAuthenticated || isGuest || !user?.email) {
+        setOrders([]);
+        return;
+      }
+      setIsRefreshing(true);
+      try {
+        const live = await fetchLiveUserOrders(user.email);
+        setOrders(live);
+        if (live.length > 0 && !expandedOrderId) {
+          setExpandedOrderId(live[0].id);
+        }
+        if (showToast) {
+          toast.success("Order status refreshed from Al-Nur Cloud! 🔄");
+        }
+      } catch (err) {
+        console.warn("Notice loading orders:", err);
+        setOrders(getSavedOrders(user.email));
+      } finally {
+        setIsRefreshing(false);
+      }
+    },
+    [isAuthenticated, isGuest, user?.email, expandedOrderId],
+  );
+
+  useEffect(() => {
+    loadOrders(false);
+  }, [loadOrders]);
+
   const handleRefresh = () => {
-    setIsRefreshing(true);
-    setTimeout(() => {
-      setOrders(getSavedOrders());
-      setIsRefreshing(false);
-      toast.success("Order status refreshed from Al-Nur Cloud! 🔄");
-    }, 600);
+    loadOrders(true);
   };
 
   const filteredOrders = orders.filter((o) => {
@@ -49,31 +77,42 @@ function OrdersPage() {
     return o.status === activeTab;
   });
 
-  const getStatusBadge = (status: StoreOrder["status"]) => {
+  const getStatusBadge = (status: FulfillmentStatus) => {
     switch (status) {
-      case "in_transit":
-        return (
-          <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold bg-blue-500/15 text-blue-600 dark:text-blue-400 border border-blue-500/30">
-            <Truck className="h-3 w-3 animate-pulse" />
-            <span>In Transit</span>
-          </span>
-        );
       case "processing":
         return (
-          <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold bg-amber-500/15 text-amber-600 dark:text-amber-400 border border-amber-500/30">
+          <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold bg-amber-500/15 text-amber-700 dark:text-amber-300 border border-amber-500/30">
             <Clock className="h-3 w-3" />
-            <span>Tailoring / Processing</span>
+            <span>Processing</span>
+          </span>
+        );
+      case "shipped":
+        return (
+          <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold bg-blue-500/15 text-blue-700 dark:text-blue-300 border border-blue-500/30">
+            <Truck className="h-3 w-3" />
+            <span>Shipped</span>
+          </span>
+        );
+      case "out_for_delivery":
+        return (
+          <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold bg-purple-500/15 text-purple-700 dark:text-purple-300 border border-purple-500/30">
+            <Navigation className="h-3 w-3 animate-pulse" />
+            <span>Out for Delivery</span>
           </span>
         );
       case "delivered":
         return (
-          <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 border border-emerald-500/30">
+          <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 border border-emerald-500/30">
             <CheckCircle2 className="h-3 w-3" />
             <span>Delivered</span>
           </span>
         );
       default:
-        return null;
+        return (
+          <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold bg-muted text-muted-foreground border border-border">
+            <span>{status}</span>
+          </span>
+        );
     }
   };
 
@@ -115,13 +154,13 @@ function OrdersPage() {
           </button>
         </div>
 
-        {/* Guest Warning Pill if guest */}
-        {isGuest && (
+        {/* Guest Warning Pill if guest or unauthenticated */}
+        {(!isAuthenticated || isGuest) && (
           <div className="mb-6 p-4 rounded-2xl bg-amber-500/10 border border-amber-500/30 flex items-center justify-between gap-3">
             <div className="flex items-center gap-2.5">
               <Package className="h-5 w-5 text-amber-500 shrink-0" />
               <p className="text-xs text-foreground">
-                Browsing in Guest Mode. Sign in to link your live orders with your account.
+                Sign in to view and track your live modest fashion orders.
               </p>
             </div>
             <button
@@ -138,15 +177,18 @@ function OrdersPage() {
         <div className="flex items-center gap-2 overflow-x-auto pb-3 mb-6 no-scrollbar">
           {[
             { id: "all", label: "All Orders" },
-            { id: "in_transit", label: "In Transit" },
-            { id: "processing", label: "Tailoring" },
+            { id: "processing", label: "Processing" },
+            { id: "shipped", label: "Shipped" },
+            { id: "out_for_delivery", label: "Out for Delivery" },
             { id: "delivered", label: "Delivered" },
           ].map((tab) => (
             <button
               key={tab.id}
               type="button"
               onClick={() =>
-                setActiveTab(tab.id as "all" | "in_transit" | "processing" | "delivered")
+                setActiveTab(
+                  tab.id as "all" | "processing" | "shipped" | "out_for_delivery" | "delivered",
+                )
               }
               className={`px-4 py-2 rounded-2xl text-xs font-bold transition-all shrink-0 ${
                 activeTab === tab.id
@@ -238,7 +280,7 @@ function OrdersPage() {
                   {/* Expandable Live Tracking Timeline & Courier Info */}
                   {isExpanded && (
                     <div className="mt-2 pt-4 border-t border-border/60 space-y-5 animate-in fade-in duration-200">
-                      {/* Courier Contact Card (if available) */}
+                      {/* Courier Contact Card */}
                       {order.courierName && (
                         <div className="p-3.5 rounded-2xl bg-primary/10 border border-primary/25 flex items-center justify-between">
                           <div className="flex items-center gap-3">
@@ -250,7 +292,7 @@ function OrdersPage() {
                                 Courier: {order.courierName}
                               </p>
                               <p className="text-[11px] text-muted-foreground">
-                                Active logistics rider in your delivery zone
+                                Active logistics partner assigned to your zone
                               </p>
                             </div>
                           </div>
@@ -267,7 +309,7 @@ function OrdersPage() {
                         </div>
                       )}
 
-                      {/* Delivery Address */}
+                      {/* Delivery Destination */}
                       <div className="flex items-start gap-2.5 text-xs text-muted-foreground">
                         <MapPin className="h-4 w-4 text-primary shrink-0 mt-0.5" />
                         <div>
@@ -279,7 +321,7 @@ function OrdersPage() {
                         </div>
                       </div>
 
-                      {/* Stepper Timeline */}
+                      {/* Unified 5-Step Milestone Stepper */}
                       <div>
                         <h4 className="text-xs font-bold text-foreground mb-3 uppercase tracking-wider">
                           Live Order Milestones
@@ -293,7 +335,7 @@ function OrdersPage() {
                                   step.isCompleted
                                     ? "bg-primary border-primary text-primary-foreground flex items-center justify-center"
                                     : step.isCurrent
-                                      ? "bg-amber-500 border-amber-500 animate-ping"
+                                      ? "bg-amber-500 border-amber-500 animate-pulse"
                                       : "bg-card border-muted-foreground/40"
                                 }`}
                               >

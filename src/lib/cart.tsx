@@ -1,5 +1,6 @@
-import React, { createContext, useContext, useState, useEffect } from "react";
+import React, { createContext, useContext, useState, useEffect, useCallback } from "react";
 import { Product } from "./collections";
+import { useAuth } from "./auth";
 
 export type CartItem = {
   product: Product;
@@ -19,39 +20,68 @@ type CartContextType = {
 const CartContext = createContext<CartContextType | undefined>(undefined);
 
 export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  const { user, isAuthenticated, isGuest } = useAuth();
   const [cart, setCart] = useState<CartItem[]>([]);
 
-  // Load cart from localStorage
-  useEffect(() => {
-    const savedCart = localStorage.getItem("al-nur-cart");
-    if (savedCart) {
-      try {
-        setCart(JSON.parse(savedCart));
-      } catch (e) {
-        console.error("Failed to parse cart", e);
-      }
+  // Compute storage key strictly isolated by authenticated user email
+  const getStorageKey = useCallback(() => {
+    if (isAuthenticated && !isGuest && user?.email) {
+      return `al-nur-cart_user_${user.email.toLowerCase().trim()}`;
     }
-  }, []);
+    return "al-nur-cart_guest";
+  }, [isAuthenticated, isGuest, user?.email]);
 
-  // Save cart to localStorage
+  // Load cart when user changes / mounts
   useEffect(() => {
-    localStorage.setItem("al-nur-cart", JSON.stringify(cart));
-  }, [cart]);
+    const key = getStorageKey();
+    try {
+      const saved = localStorage.getItem(key);
+      if (saved) {
+        setCart(JSON.parse(saved));
+      } else {
+        setCart([]);
+      }
+    } catch (e) {
+      console.error("Failed to load user cart", e);
+      setCart([]);
+    }
+  }, [getStorageKey]);
+
+  // Save cart to the user-specific storage key
+  const saveCartToStorage = useCallback(
+    (newCart: CartItem[]) => {
+      const key = getStorageKey();
+      try {
+        localStorage.setItem(key, JSON.stringify(newCart));
+      } catch (e) {
+        console.error("Failed to persist user cart", e);
+      }
+    },
+    [getStorageKey],
+  );
 
   const addToCart = (product: Product) => {
     setCart((prev) => {
       const existing = prev.find((item) => item.product.name === product.name);
+      let updated: CartItem[];
       if (existing) {
-        return prev.map((item) =>
+        updated = prev.map((item) =>
           item.product.name === product.name ? { ...item, quantity: item.quantity + 1 } : item,
         );
+      } else {
+        updated = [...prev, { product, quantity: 1 }];
       }
-      return [...prev, { product, quantity: 1 }];
+      saveCartToStorage(updated);
+      return updated;
     });
   };
 
   const removeFromCart = (productName: string) => {
-    setCart((prev) => prev.filter((item) => item.product.name !== productName));
+    setCart((prev) => {
+      const updated = prev.filter((item) => item.product.name !== productName);
+      saveCartToStorage(updated);
+      return updated;
+    });
   };
 
   const updateQuantity = (productName: string, quantity: number) => {
@@ -59,12 +89,24 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
       removeFromCart(productName);
       return;
     }
-    setCart((prev) =>
-      prev.map((item) => (item.product.name === productName ? { ...item, quantity } : item)),
-    );
+    setCart((prev) => {
+      const updated = prev.map((item) =>
+        item.product.name === productName ? { ...item, quantity } : item,
+      );
+      saveCartToStorage(updated);
+      return updated;
+    });
   };
 
-  const clearCart = () => setCart([]);
+  const clearCart = () => {
+    setCart([]);
+    const key = getStorageKey();
+    try {
+      localStorage.removeItem(key);
+    } catch (e) {
+      console.error("Failed to clear user cart", e);
+    }
+  };
 
   const totalItems = cart.reduce((acc, item) => acc + item.quantity, 0);
 
