@@ -224,10 +224,20 @@ function CheckoutPage() {
     });
 
     // Check if Monnify SDK is loaded
-    if (typeof window !== "undefined" && (window as any).MonnifySDK) {
+    interface MonnifyResponse {
+      paymentStatus?: string;
+      status?: string;
+    }
+    interface MonnifySDKWindow extends Window {
+      MonnifySDK?: {
+        initialize: (config: Record<string, unknown>) => void;
+      };
+    }
+    const win = typeof window !== "undefined" ? (window as unknown as MonnifySDKWindow) : null;
+    if (win?.MonnifySDK) {
       try {
         const cleanRef = `ALN${Date.now()}`;
-        (window as any).MonnifySDK.initialize({
+        win.MonnifySDK.initialize({
           amount: totalPrice,
           currency: "NGN",
           reference: cleanRef,
@@ -248,7 +258,7 @@ function CheckoutPage() {
             orderId,
             items: itemsSummary,
           },
-          onComplete: function (response: any) {
+          onComplete: function (response: MonnifyResponse) {
             setLoading(false);
             if (response && (response.paymentStatus === "PAID" || response.status === "SUCCESS")) {
               clearCart();
@@ -265,12 +275,15 @@ function CheckoutPage() {
           },
           onClose: function () {
             setLoading(false);
-            toast.info("Monnify gateway closed. You can switch to Selar or WhatsApp Concierge anytime.", {
-              action: {
-                label: "Pay with Selar",
-                onClick: () => handleSelarPayment(),
+            toast.info(
+              "Monnify gateway closed. You can switch to Selar or WhatsApp Concierge anytime.",
+              {
+                action: {
+                  label: "Pay with Selar",
+                  onClick: () => handleSelarPayment(),
+                },
               },
-            });
+            );
           },
         });
         return;
@@ -522,8 +535,8 @@ function CheckoutPage() {
                     </div>
 
                     <p className="text-xs text-muted-foreground mb-4">
-                      Choose your preferred secure checkout option. Both support Nigerian Bank Transfers,
-                      Mastercard, Visa, and Verve.
+                      Choose your preferred secure checkout option. Both support Nigerian Bank
+                      Transfers, Mastercard, Visa, and Verve.
                     </p>
 
                     {/* Gateway Toggle */}
@@ -606,13 +619,16 @@ function CheckoutPage() {
                           <div className="flex items-start gap-2">
                             <Building2 className="h-4 w-4 text-primary shrink-0 mt-0.5" />
                             <span>
-                              <strong>Instant Virtual Bank Transfer:</strong> Generates a dedicated Wema / Sterling virtual account for this exact order with instant verification.
+                              <strong>Instant Virtual Bank Transfer:</strong> Generates a dedicated
+                              Wema / Sterling virtual account for this exact order with instant
+                              verification.
                             </span>
                           </div>
                           <div className="flex items-start gap-2">
                             <CreditCard className="h-4 w-4 text-primary shrink-0 mt-0.5" />
                             <span>
-                              <strong>Debit Cards & USSD:</strong> Mastercard, Visa, and Verve supported with 2FA OTP security.
+                              <strong>Debit Cards & USSD:</strong> Mastercard, Visa, and Verve
+                              supported with 2FA OTP security.
                             </span>
                           </div>
                         </div>
@@ -620,7 +636,10 @@ function CheckoutPage() {
                         <div className="p-3 rounded-xl bg-amber-500/10 border border-amber-500/20 text-[11px] text-amber-700 dark:text-amber-300 flex items-start gap-2">
                           <ShieldCheck className="h-4 w-4 shrink-0 mt-0.5 text-amber-600 dark:text-amber-400" />
                           <span>
-                            <strong>Developer Notice:</strong> Monnify Test Sandbox (<code className="text-[10px]">sandbox.monnify.com</code>) is temporarily undergoing upstream maintenance (HTTP 503). If the sandbox modal says <em>Unable to process</em>, select <strong>Selar</strong> above.
+                            <strong>Developer Notice:</strong> Monnify Test Sandbox (
+                            <code className="text-[10px]">sandbox.monnify.com</code>) is temporarily
+                            undergoing upstream maintenance (HTTP 503). If the sandbox modal says{" "}
+                            <em>Unable to process</em>, select <strong>Selar</strong> above.
                           </span>
                         </div>
 

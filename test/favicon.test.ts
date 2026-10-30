@@ -17,7 +17,7 @@ describe("Brand Favicon & Web Manifest Suite", () => {
     assert.ok(html.includes('rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png"'));
     assert.ok(html.includes('rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png"'));
     assert.ok(html.includes('rel="manifest" href="/site.webmanifest"'));
-    assert.ok(html.includes('name="theme-color" content="#0E382B"'));
+    assert.ok(html.includes('name="theme-color" content="#FAF7F2"'));
   });
 
   it("33. All favicon files exist in public/ for static Vite delivery", () => {
@@ -48,8 +48,7 @@ describe("Brand Favicon & Web Manifest Suite", () => {
 
     assert.strictEqual(manifest.name, "Al-Nur Store");
     assert.strictEqual(manifest.short_name, "Al-Nur");
-    assert.strictEqual(manifest.theme_color, "#0E382B");
+    assert.strictEqual(manifest.theme_color, "#FAF7F2");
     assert.strictEqual(manifest.icons.length, 2);
   });
 });
-
