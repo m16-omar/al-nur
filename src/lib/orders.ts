@@ -18,6 +18,7 @@ export interface OrderTimelineStep {
 }
 
 export type FulfillmentStatus =
+  | "placed"
   | "processing"
   | "shipped"
   | "out_for_delivery"
@@ -65,63 +66,74 @@ export const DEFAULT_USER_ADDRESSES: UserAddress[] = [
 export const SERVERPOD_API_URL = "https://alnur-store.api.serverpod.space";
 
 /**
- * Normalizes any raw backend fulfillment status to the canonical 4-step lifecycle
+ * Normalizes any raw backend fulfillment status to the canonical 5-level lifecycle
  */
 export function normalizeFulfillmentStatus(rawStatus?: string | null): FulfillmentStatus {
-  if (!rawStatus) return "processing";
-  const lower = rawStatus.toLowerCase().trim();
-  if (lower === "shipped" || lower === "dispatched" || lower === "transit" || lower === "in_transit") {
-    return "shipped";
-  }
-  if (lower === "out_for_delivery" || lower === "outfordelivery" || lower === "delivery") {
-    return "out_for_delivery";
-  }
-  if (lower === "delivered" || lower === "completed" || lower === "fulfilled") {
-    return "delivered";
-  }
-  if (lower === "cancelled" || lower === "rejected") {
+  if (!rawStatus) return "placed";
+  const lower = rawStatus.toLowerCase().trim().replace(/ /g, "_");
+  if (lower.includes("cancel") || lower === "rejected") {
     return "cancelled";
   }
-  return "processing";
+  if (lower.includes("deliver") || lower === "completed" || lower === "fulfilled") {
+    return "delivered";
+  }
+  if (lower.includes("out_for_delivery") || lower.includes("transit")) {
+    return "out_for_delivery";
+  }
+  if (lower.includes("ship") || lower.includes("dispatch") || lower.includes("courier")) {
+    return "shipped";
+  }
+  if (lower.includes("tailor") || lower.includes("process") || lower.includes("craft")) {
+    return "processing";
+  }
+  if (lower.includes("place") || lower.includes("confirm")) {
+    return "placed";
+  }
+  return "placed";
 }
 
 /**
- * Generates the unified 5-step milestone tracking timeline for an order
+ * Generates the unified 5-step milestone tracking timeline for an order:
+ * 1. Order Placed & Confirmed
+ * 2. Processing & Handcrafted Tailoring
+ * 3. Shipped & Handed to Courier
+ * 4. Out for Delivery
+ * 5. Delivered
  */
 export function buildOrderTimeline(status: FulfillmentStatus, orderDateStr: string): OrderTimelineStep[] {
   const norm = normalizeFulfillmentStatus(status);
   return [
     {
-      title: "Order Placed",
-      subtitle: "Payment received & confirmed via Monnify / Selar",
+      title: "1. Order Placed & Confirmed",
+      subtitle: "Order placed & verified in Al-Nur boutique records",
       date: orderDateStr || "Just now",
       isCompleted: true,
+      isCurrent: norm === "placed",
+    },
+    {
+      title: "2. Processing & Handcrafted Tailoring",
+      subtitle: "Custom sizing, embellishment, and tailoring at Al-Nur Atelier",
+      date: norm !== "placed" ? "Completed" : "In Progress",
+      isCompleted: norm !== "placed",
       isCurrent: norm === "processing",
     },
     {
-      title: "Processing & Tailoring",
-      subtitle: "Custom sizing and modesty craftsmanship at Al-Nur Atelier",
-      date: norm !== "processing" ? "Completed" : "In Progress",
-      isCompleted: norm !== "processing",
-      isCurrent: norm === "processing",
-    },
-    {
-      title: "Shipped & Dispatched",
-      subtitle: "Sealed in gold-foil heirloom box and handed to dispatch courier",
+      title: "3. Shipped & Handed to Courier",
+      subtitle: "Sealed in gold-foil heirloom box and handed to courier partner",
       date: norm === "shipped" || norm === "out_for_delivery" || norm === "delivered" ? "Completed" : "Pending",
       isCompleted: norm === "shipped" || norm === "out_for_delivery" || norm === "delivered",
       isCurrent: norm === "shipped",
     },
     {
-      title: "Out for Delivery",
-      subtitle: "Courier Ibrahim is en route with your package",
+      title: "4. Out for Delivery",
+      subtitle: "Courier rider is actively en route with your package today",
       date: norm === "out_for_delivery" || norm === "delivered" ? "Today" : "Pending",
       isCompleted: norm === "out_for_delivery" || norm === "delivered",
       isCurrent: norm === "out_for_delivery",
     },
     {
-      title: "Delivered",
-      subtitle: "Package signed and received safely",
+      title: "5. Delivered",
+      subtitle: "Package signed and received safely. May Allah bless your modest purchase!",
       date: norm === "delivered" ? "Delivered" : "Pending",
       isCompleted: norm === "delivered",
       isCurrent: norm === "delivered",

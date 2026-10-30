@@ -32,7 +32,7 @@ function OrdersPage() {
   const { user, isGuest, isAuthenticated } = useAuth();
   const [orders, setOrders] = useState<StoreOrder[]>([]);
   const [activeTab, setActiveTab] = useState<
-    "all" | "processing" | "shipped" | "out_for_delivery" | "delivered"
+    "all" | "placed" | "processing" | "shipped" | "out_for_delivery" | "delivered" | "cancelled"
   >("all");
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [expandedOrderId, setExpandedOrderId] = useState<string | null>(null);
@@ -79,37 +79,50 @@ function OrdersPage() {
 
   const getStatusBadge = (status: FulfillmentStatus) => {
     switch (status) {
+      case "placed":
+        return (
+          <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold bg-[#FAF3E8] text-[#8F581B] border border-[#E5A83B]/40 whitespace-nowrap">
+            <Clock className="h-3 w-3 text-[#C87A1E]" />
+            <span>1. Placed & Confirmed</span>
+          </span>
+        );
       case "processing":
         return (
-          <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold bg-amber-500/15 text-amber-700 dark:text-amber-300 border border-amber-500/30">
+          <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold bg-amber-500/15 text-amber-700 dark:text-amber-300 border border-amber-500/30 whitespace-nowrap">
             <Clock className="h-3 w-3" />
-            <span>Processing</span>
+            <span>2. Processing & Tailoring</span>
           </span>
         );
       case "shipped":
         return (
-          <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold bg-blue-500/15 text-blue-700 dark:text-blue-300 border border-blue-500/30">
+          <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold bg-blue-500/15 text-blue-700 dark:text-blue-300 border border-blue-500/30 whitespace-nowrap">
             <Truck className="h-3 w-3" />
-            <span>Shipped</span>
+            <span>3. Shipped & Courier Handover</span>
           </span>
         );
       case "out_for_delivery":
         return (
-          <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold bg-purple-500/15 text-purple-700 dark:text-purple-300 border border-purple-500/30">
+          <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold bg-purple-500/15 text-purple-700 dark:text-purple-300 border border-purple-500/30 whitespace-nowrap">
             <Navigation className="h-3 w-3 animate-pulse" />
-            <span>Out for Delivery</span>
+            <span>4. Out for Delivery</span>
           </span>
         );
       case "delivered":
         return (
-          <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 border border-emerald-500/30">
+          <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 border border-emerald-500/30 whitespace-nowrap">
             <CheckCircle2 className="h-3 w-3" />
-            <span>Delivered</span>
+            <span>5. Delivered</span>
+          </span>
+        );
+      case "cancelled":
+        return (
+          <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold bg-rose-500/15 text-rose-700 dark:text-rose-300 border border-rose-500/30 whitespace-nowrap">
+            <span>Cancelled</span>
           </span>
         );
       default:
         return (
-          <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold bg-muted text-muted-foreground border border-border">
+          <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold bg-muted text-muted-foreground border border-border whitespace-nowrap">
             <span>{status}</span>
           </span>
         );
@@ -177,17 +190,26 @@ function OrdersPage() {
         <div className="flex items-center gap-2 overflow-x-auto pb-3 mb-6 no-scrollbar">
           {[
             { id: "all", label: "All Orders" },
-            { id: "processing", label: "Processing" },
-            { id: "shipped", label: "Shipped" },
-            { id: "out_for_delivery", label: "Out for Delivery" },
-            { id: "delivered", label: "Delivered" },
+            { id: "placed", label: "1. Placed" },
+            { id: "processing", label: "2. Tailoring" },
+            { id: "shipped", label: "3. Shipped" },
+            { id: "out_for_delivery", label: "4. Out for Delivery" },
+            { id: "delivered", label: "5. Delivered" },
+            { id: "cancelled", label: "Cancelled" },
           ].map((tab) => (
             <button
               key={tab.id}
               type="button"
               onClick={() =>
                 setActiveTab(
-                  tab.id as "all" | "processing" | "shipped" | "out_for_delivery" | "delivered",
+                  tab.id as
+                    | "all"
+                    | "placed"
+                    | "processing"
+                    | "shipped"
+                    | "out_for_delivery"
+                    | "delivered"
+                    | "cancelled",
                 )
               }
               className={`px-4 py-2 rounded-2xl text-xs font-bold transition-all shrink-0 ${

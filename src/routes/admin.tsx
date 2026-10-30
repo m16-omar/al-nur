@@ -15,6 +15,9 @@ import {
   MessageCircle,
   MapPin,
   Navigation,
+  Scissors,
+  XCircle,
+  PackageCheck,
 } from "lucide-react";
 import { toast } from "sonner";
 import { Nav, Footer } from "@/components/SiteChrome";
@@ -57,7 +60,7 @@ function AdminOrdersPage() {
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [activeTab, setActiveTab] = useState<
-    "all" | "processing" | "shipped" | "out_for_delivery" | "delivered" | "paid" | "pending"
+    "all" | "placed" | "processing" | "shipped" | "out_for_delivery" | "delivered" | "cancelled" | "paid" | "pending"
   >("all");
   const [selectedOrder, setSelectedOrder] = useState<ServerpodStoreOrder | null>(null);
 
@@ -148,27 +151,26 @@ function AdminOrdersPage() {
   };
 
   const normalizeStatus = (status?: string | null) => {
-    if (!status) return "processing";
-    const lower = status.toLowerCase().trim();
-    if (lower === "shipped" || lower === "dispatched" || lower === "transit" || lower === "in_transit") {
-      return "shipped";
-    }
-    if (lower === "out_for_delivery" || lower === "outfordelivery" || lower === "delivery") {
-      return "out_for_delivery";
-    }
-    if (lower === "delivered" || lower === "completed" || lower === "fulfilled") {
-      return "delivered";
-    }
-    return "processing";
+    if (!status) return "placed";
+    const lower = status.toLowerCase().trim().replace(/ /g, "_");
+    if (lower.includes("cancel")) return "cancelled";
+    if (lower.includes("deliver") || lower === "completed" || lower === "fulfilled") return "delivered";
+    if (lower.includes("out_for_delivery") || lower.includes("transit")) return "out_for_delivery";
+    if (lower.includes("ship") || lower.includes("dispatch") || lower.includes("courier")) return "shipped";
+    if (lower.includes("tailor") || lower.includes("process") || lower.includes("craft")) return "processing";
+    if (lower.includes("place") || lower.includes("confirm")) return "placed";
+    return "placed";
   };
 
   const filteredOrders = orders.filter((o) => {
     const fulfill = normalizeStatus(o.fulfillmentStatus);
     const pay = (o.paymentStatus || "pending").toLowerCase();
+    if (activeTab === "placed" && fulfill !== "placed") return false;
     if (activeTab === "processing" && fulfill !== "processing") return false;
     if (activeTab === "shipped" && fulfill !== "shipped") return false;
     if (activeTab === "out_for_delivery" && fulfill !== "out_for_delivery") return false;
     if (activeTab === "delivered" && fulfill !== "delivered") return false;
+    if (activeTab === "cancelled" && fulfill !== "cancelled") return false;
     if (activeTab === "paid" && pay !== "paid") return false;
     if (activeTab === "pending" && pay !== "pending") return false;
 
@@ -194,6 +196,9 @@ function AdminOrdersPage() {
     .filter((o) => (o.paymentStatus || "").toLowerCase() === "paid")
     .reduce((sum, o) => sum + (Number(o.totalAmount) || 0), 0);
 
+  const placedCount = orders.filter(
+    (o) => normalizeStatus(o.fulfillmentStatus) === "placed"
+  ).length;
   const processingCount = orders.filter(
     (o) => normalizeStatus(o.fulfillmentStatus) === "processing"
   ).length;
@@ -205,6 +210,9 @@ function AdminOrdersPage() {
   ).length;
   const deliveredCount = orders.filter(
     (o) => normalizeStatus(o.fulfillmentStatus) === "delivered"
+  ).length;
+  const cancelledCount = orders.filter(
+    (o) => normalizeStatus(o.fulfillmentStatus) === "cancelled"
   ).length;
 
   const printWaybillSlip = (order: ServerpodStoreOrder) => {
@@ -390,10 +398,12 @@ function AdminOrdersPage() {
           <div className="flex items-center gap-2 overflow-x-auto pb-2 no-scrollbar">
             {[
               { id: "all", label: `All (${orders.length})` },
-              { id: "processing", label: `Processing (${processingCount})` },
-              { id: "shipped", label: `Shipped (${shippedCount})` },
-              { id: "out_for_delivery", label: `Out for Delivery (${outForDeliveryCount})` },
-              { id: "delivered", label: `Delivered (${deliveredCount})` },
+              { id: "placed", label: `1. Placed (${placedCount})` },
+              { id: "processing", label: `2. Tailoring (${processingCount})` },
+              { id: "shipped", label: `3. Shipped (${shippedCount})` },
+              { id: "out_for_delivery", label: `4. Out for Delivery (${outForDeliveryCount})` },
+              { id: "delivered", label: `5. Delivered (${deliveredCount})` },
+              { id: "cancelled", label: `Cancelled (${cancelledCount})` },
               { id: "paid", label: "Paid" },
               { id: "pending", label: "Pending" },
             ].map((tab) => (
@@ -404,10 +414,12 @@ function AdminOrdersPage() {
                   setActiveTab(
                     tab.id as
                       | "all"
+                      | "placed"
                       | "processing"
                       | "shipped"
                       | "out_for_delivery"
                       | "delivered"
+                      | "cancelled"
                       | "paid"
                       | "pending"
                   )
@@ -471,20 +483,34 @@ function AdminOrdersPage() {
                           #{order.orderRef}
                         </span>
                         <span
-                          className={`px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider ${
+                          className={`px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider whitespace-nowrap ${
                             normFulfill === "delivered"
                               ? "bg-emerald-500/10 text-emerald-600 border border-emerald-500/30"
                               : normFulfill === "out_for_delivery"
                               ? "bg-purple-500/10 text-purple-600 border border-purple-500/30"
                               : normFulfill === "shipped"
                               ? "bg-blue-500/10 text-blue-600 border border-blue-500/30"
-                              : "bg-amber-500/10 text-amber-600 border border-amber-500/30"
+                              : normFulfill === "cancelled"
+                              ? "bg-rose-500/10 text-rose-600 border border-rose-500/30"
+                              : normFulfill === "processing"
+                              ? "bg-amber-500/10 text-amber-600 border border-amber-500/30"
+                              : "bg-[#FAF3E8] text-[#8F581B] border border-[#E5A83B]/40"
                           }`}
                         >
-                          {normFulfill.replace(/_/g, " ")}
+                          {normFulfill === "placed"
+                            ? "1. Placed & Confirmed"
+                            : normFulfill === "processing"
+                            ? "2. Tailoring"
+                            : normFulfill === "shipped"
+                            ? "3. Shipped"
+                            : normFulfill === "out_for_delivery"
+                            ? "4. Out for Delivery"
+                            : normFulfill === "delivered"
+                            ? "5. Delivered"
+                            : "Cancelled"}
                         </span>
                         <span
-                          className={`px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider ${
+                          className={`px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider whitespace-nowrap ${
                             order.paymentStatus === "paid"
                               ? "bg-emerald-500/10 text-emerald-600 border border-emerald-500/30"
                               : "bg-amber-500/10 text-amber-600 border border-amber-500/30"
@@ -598,43 +624,82 @@ function AdminOrdersPage() {
 
                   {/* Quick Action Buttons */}
                   <div className="flex flex-wrap items-center justify-between gap-2 pt-4 mt-4 border-t border-border/60">
-                    <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-2 flex-wrap">
                       <span className="text-[11px] text-muted-foreground font-semibold">Fulfillment:</span>
+                      {normFulfill === "placed" && (
+                        <button
+                          type="button"
+                          onClick={() => handleUpdateFulfillment(order.orderRef, "processing")}
+                          className="px-3 py-1 rounded-xl bg-primary text-primary-foreground text-xs font-bold hover:opacity-90 transition-all flex items-center gap-1.5 shadow-xs"
+                          title="Advance to Level 2: Processing & Handcrafted Tailoring"
+                        >
+                          <Scissors className="h-3.5 w-3.5" />
+                          <span>Start Tailoring →</span>
+                        </button>
+                      )}
                       {normFulfill === "processing" && (
                         <button
                           type="button"
                           onClick={() => handleUpdateFulfillment(order.orderRef, "shipped")}
-                          className="px-3 py-1 rounded-xl bg-blue-500/10 text-blue-600 dark:text-blue-400 border border-blue-500/30 text-xs font-bold hover:bg-blue-500/20 transition-all flex items-center gap-1.5"
+                          className="px-3 py-1 rounded-xl bg-primary text-primary-foreground text-xs font-bold hover:opacity-90 transition-all flex items-center gap-1.5 shadow-xs"
+                          title="Advance to Level 3: Shipped & Handed to Courier"
                         >
                           <Truck className="h-3.5 w-3.5" />
-                          <span>Dispatch & Ship</span>
+                          <span>Mark Shipped →</span>
                         </button>
                       )}
                       {normFulfill === "shipped" && (
                         <button
                           type="button"
                           onClick={() => handleUpdateFulfillment(order.orderRef, "out_for_delivery")}
-                          className="px-3 py-1 rounded-xl bg-purple-500/10 text-purple-600 dark:text-purple-400 border border-purple-500/30 text-xs font-bold hover:bg-purple-500/20 transition-all flex items-center gap-1.5"
+                          className="px-3 py-1 rounded-xl bg-primary text-primary-foreground text-xs font-bold hover:opacity-90 transition-all flex items-center gap-1.5 shadow-xs"
+                          title="Advance to Level 4: Out for Delivery"
                         >
                           <Navigation className="h-3.5 w-3.5" />
-                          <span>Out for Delivery</span>
+                          <span>Out for Delivery →</span>
                         </button>
                       )}
                       {normFulfill === "out_for_delivery" && (
                         <button
                           type="button"
                           onClick={() => handleUpdateFulfillment(order.orderRef, "delivered")}
-                          className="px-3 py-1 rounded-xl bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/30 text-xs font-bold hover:bg-emerald-500/20 transition-all flex items-center gap-1.5"
+                          className="px-3 py-1 rounded-xl bg-emerald-600 text-white text-xs font-bold hover:bg-emerald-700 transition-all flex items-center gap-1.5 shadow-xs"
+                          title="Advance to Level 5: Delivered"
                         >
                           <CheckCircle2 className="h-3.5 w-3.5" />
-                          <span>Mark as Delivered</span>
+                          <span>Mark Delivered ✓</span>
                         </button>
                       )}
                       {normFulfill === "delivered" && (
                         <span className="text-xs text-emerald-600 font-bold flex items-center gap-1">
                           <CheckCircle2 className="h-3.5 w-3.5" />
-                          <span>Completed & Handed Over</span>
+                          <span>5. Delivered ✓</span>
                         </span>
+                      )}
+                      {normFulfill === "cancelled" && (
+                        <button
+                          type="button"
+                          onClick={() => handleUpdateFulfillment(order.orderRef, "processing")}
+                          className="px-3 py-1 rounded-xl border border-border bg-card text-foreground text-xs font-bold hover:bg-muted transition-all flex items-center gap-1.5"
+                        >
+                          <RotateCw className="h-3.5 w-3.5" />
+                          <span>Reopen Order</span>
+                        </button>
+                      )}
+                      {normFulfill !== "delivered" && normFulfill !== "cancelled" && (
+                        <button
+                          type="button"
+                          onClick={() => {
+                            if (window.confirm(`Are you sure you want to cancel Order #${order.orderRef}?`)) {
+                              handleUpdateFulfillment(order.orderRef, "cancelled");
+                            }
+                          }}
+                          className="px-2.5 py-1 rounded-xl bg-rose-500/10 text-rose-600 border border-rose-500/30 text-xs font-bold hover:bg-rose-500/20 transition-all flex items-center gap-1"
+                          title="Cancel Order"
+                        >
+                          <XCircle className="h-3.5 w-3.5" />
+                          <span>Cancel Order</span>
+                        </button>
                       )}
                     </div>
 
