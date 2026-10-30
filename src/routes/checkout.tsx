@@ -226,18 +226,25 @@ function CheckoutPage() {
     // Check if Monnify SDK is loaded
     if (typeof window !== "undefined" && (window as any).MonnifySDK) {
       try {
+        const cleanRef = `ALN${Date.now()}`;
         (window as any).MonnifySDK.initialize({
           amount: totalPrice,
           currency: "NGN",
-          reference: orderId,
+          reference: cleanRef,
+          customerName: formData.name,
           customerFullName: formData.name,
           customerEmail: formData.email,
           customerMobileNumber: formData.phone || "08031902398",
           apiKey: "MK_TEST_F0NB310FSJ",
           contractCode: "6355760337",
-          paymentDescription: `Al-Nur Order - ${itemsSummary}`,
+          paymentDescription: `Al-Nur Order - ${itemsSummary}`.slice(0, 60),
           isTestMode: true,
+          paymentMethods: ["CARD", "ACCOUNT_TRANSFER", "USSD"],
           metadata: {
+            orderId,
+            items: itemsSummary,
+          },
+          metaData: {
             orderId,
             items: itemsSummary,
           },
@@ -247,10 +254,23 @@ function CheckoutPage() {
               clearCart();
               setCompleted(true);
               toast.success("Payment Received! Your Al-Nur order is confirmed.");
+            } else {
+              toast.error("Payment could not be completed. You can pay securely with Selar.", {
+                action: {
+                  label: "Use Selar",
+                  onClick: () => handleSelarPayment(),
+                },
+              });
             }
           },
           onClose: function () {
             setLoading(false);
+            toast.info("Monnify gateway closed. You can switch to Selar or WhatsApp Concierge anytime.", {
+              action: {
+                label: "Pay with Selar",
+                onClick: () => handleSelarPayment(),
+              },
+            });
           },
         });
         return;
@@ -597,6 +617,13 @@ function CheckoutPage() {
                           </div>
                         </div>
 
+                        <div className="p-3 rounded-xl bg-amber-500/10 border border-amber-500/20 text-[11px] text-amber-700 dark:text-amber-300 flex items-start gap-2">
+                          <ShieldCheck className="h-4 w-4 shrink-0 mt-0.5 text-amber-600 dark:text-amber-400" />
+                          <span>
+                            <strong>Developer Notice:</strong> Monnify Test Sandbox (<code className="text-[10px]">sandbox.monnify.com</code>) is temporarily undergoing upstream maintenance (HTTP 503). If the sandbox modal says <em>Unable to process</em>, select <strong>Selar</strong> above.
+                          </span>
+                        </div>
+
                         <button
                           onClick={handleMonnifyPayment}
                           disabled={loading}
@@ -610,6 +637,14 @@ function CheckoutPage() {
                               <ChevronRight className="h-4 w-4" />
                             </>
                           )}
+                        </button>
+
+                        <button
+                          type="button"
+                          onClick={() => setPaymentGateway("selar")}
+                          className="w-full text-center text-xs font-semibold text-primary hover:underline py-0.5"
+                        >
+                          Switch to Selar Gateway instead →
                         </button>
 
                         <div className="flex items-center justify-between pt-2 border-t border-border/60 text-xs">
