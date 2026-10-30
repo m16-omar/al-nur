@@ -52,3 +52,4 @@ describe("Brand Favicon & Web Manifest Suite", () => {
     assert.strictEqual(manifest.icons.length, 2);
   });
 });
+

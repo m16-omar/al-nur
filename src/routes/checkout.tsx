@@ -13,6 +13,9 @@ import {
   ShieldCheck,
   ShoppingBag,
   ArrowRight,
+  CreditCard,
+  Building2,
+  Smartphone,
 } from "lucide-react";
 import { WHATSAPP, waLink } from "@/lib/collections";
 import {
@@ -31,6 +34,7 @@ function CheckoutPage() {
   const { cart, totalPrice, totalItems, clearCart } = useCart();
   const { user, isAuthenticated, isGuest } = useAuth();
   const [step, setStep] = useState(1);
+  const [paymentGateway, setPaymentGateway] = useState<"monnify" | "selar">("monnify");
   const [formData, setFormData] = useState({
     name: "",
     email: "",
@@ -164,6 +168,99 @@ function CheckoutPage() {
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
+  };
+
+  const handleMonnifyPayment = () => {
+    if (!formData.name || !formData.email) {
+      toast.error("Please provide your name and email address.");
+      return;
+    }
+    setLoading(true);
+
+    const orderId = `ALN-${Math.floor(10000 + Math.random() * 90000)}`;
+    const trackingNum = `ALN-TRK-${Math.floor(1000000 + Math.random() * 9000000)}`;
+    const itemsSummary = cart.map((i) => `${i.quantity}x ${i.product.name}`).join(", ");
+
+    saveOrder({
+      id: orderId,
+      orderDate: "Today, Just now",
+      status: "processing",
+      trackingNumber: trackingNum,
+      deliveryAddress: formData.address || "Plot 14, Admiralty Way, Lekki Phase 1, Lagos",
+      estimatedDelivery: "In 2-3 business days",
+      subtotal: totalPrice,
+      shippingFee: 2500,
+      totalAmount: totalPrice + 2500,
+      courierName: "Ibrahim",
+      courierPhone: "+234 803 123 4567",
+      items: cart.map((i) => ({
+        name: i.product.name,
+        category: i.product.category,
+        quantity: i.quantity,
+        price: Number(i.product.price.replace(/[^0-9]/g, "")),
+        imageUrl: i.product.img,
+      })),
+      timeline: [
+        {
+          title: "Order Placed",
+          subtitle: "Payment initiated via Monnify Gateway",
+          date: "Just now",
+          isCompleted: true,
+          isCurrent: true,
+        },
+        {
+          title: "Custom Sizing & Quality Check",
+          subtitle: "Scheduled with Al-Nur Master Tailors",
+          date: "Pending",
+          isCompleted: false,
+        },
+        {
+          title: "Courier Dispatch",
+          subtitle: "Waybill assigned for delivery",
+          date: "Pending",
+          isCompleted: false,
+        },
+      ],
+    });
+
+    // Check if Monnify SDK is loaded
+    if (typeof window !== "undefined" && (window as any).MonnifySDK) {
+      try {
+        (window as any).MonnifySDK.initialize({
+          amount: totalPrice,
+          currency: "NGN",
+          reference: orderId,
+          customerFullName: formData.name,
+          customerEmail: formData.email,
+          customerMobileNumber: formData.phone || "08031902398",
+          apiKey: "MK_TEST_F0NB310FSJ",
+          contractCode: "6355760337",
+          paymentDescription: `Al-Nur Order - ${itemsSummary}`,
+          isTestMode: true,
+          metadata: {
+            orderId,
+            items: itemsSummary,
+          },
+          onComplete: function (response: any) {
+            setLoading(false);
+            if (response && (response.paymentStatus === "PAID" || response.status === "SUCCESS")) {
+              clearCart();
+              setCompleted(true);
+              toast.success("Payment Received! Your Al-Nur order is confirmed.");
+            }
+          },
+          onClose: function () {
+            setLoading(false);
+          },
+        });
+        return;
+      } catch (err) {
+        console.error("Monnify SDK initialization notice:", err);
+      }
+    }
+
+    // Fallback if SDK blocked or loading
+    handleSelarPayment();
   };
 
   const handleSelarPayment = () => {
@@ -391,7 +488,7 @@ function CheckoutPage() {
                     )}
                   </div>
 
-                  {/* Step 2: Selar Gateway Payment */}
+                  {/* Step 2: Payment Gateway Selection & Execution */}
                   <div
                     className={`space-y-4 p-6 rounded-3xl border border-border bg-card/60 transition-opacity ${
                       step !== 2 ? "opacity-60 pointer-events-none" : ""
@@ -401,64 +498,195 @@ function CheckoutPage() {
                       <span className="flex h-7 w-7 items-center justify-center rounded-full bg-primary text-primary-foreground text-xs font-bold">
                         2
                       </span>
-                      <h2 className="text-lg font-bold text-foreground">Payment Method</h2>
+                      <h2 className="text-lg font-bold text-foreground">Select Payment Method</h2>
                     </div>
 
-                    <div className="rounded-2xl border border-primary/30 p-5 bg-primary/5">
-                      <div className="flex items-center justify-between mb-3">
-                        <div className="flex items-center gap-2">
-                          <ShieldCheck className="h-5 w-5 text-primary" />
-                          <span className="text-sm font-bold text-foreground">
-                            Selar Halal Payment Gateway
+                    <p className="text-xs text-muted-foreground mb-4">
+                      Choose your preferred secure checkout option. Both support Nigerian Bank Transfers,
+                      Mastercard, Visa, and Verve.
+                    </p>
+
+                    {/* Gateway Toggle */}
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-4">
+                      {/* Monnify Option (Recommended) */}
+                      <button
+                        type="button"
+                        onClick={() => setPaymentGateway("monnify")}
+                        className={`text-left p-4 rounded-2xl border transition-all relative ${
+                          paymentGateway === "monnify"
+                            ? "border-primary bg-primary/10 shadow-sm ring-1 ring-primary/40"
+                            : "border-border bg-card/40 hover:bg-card hover:border-border/80"
+                        }`}
+                      >
+                        <div className="flex items-center justify-between mb-2">
+                          <div className="flex items-center gap-2">
+                            <div className="h-8 w-8 rounded-xl bg-primary/20 text-primary flex items-center justify-center font-bold">
+                              <Building2 className="h-4 w-4" />
+                            </div>
+                            <span className="text-sm font-bold text-foreground">Monnify</span>
+                          </div>
+                          <span className="text-[10px] uppercase font-bold text-amber-600 bg-amber-100 dark:bg-amber-950/60 px-2 py-0.5 rounded-full">
+                            Recommended
                           </span>
                         </div>
-                        <span className="text-[10px] uppercase font-bold text-emerald-600 bg-emerald-100 dark:bg-emerald-950/60 px-2 py-0.5 rounded-full">
-                          Active
-                        </span>
-                      </div>
-                      <div className="text-xs text-muted-foreground mb-4 space-y-1.5 leading-relaxed">
-                        <p>
-                          Cards (Mastercard, Visa, Verve), Bank Transfers, and USSD supported
-                          securely via your verified Selar merchant account.
+                        <p className="text-xs text-muted-foreground font-medium">
+                          Exact Amount (₦{totalPrice.toLocaleString()})
                         </p>
-                        <p className="text-[11px] font-mono text-primary flex items-center gap-1.5 pt-0.5">
-                          <span className="inline-block h-2 w-2 rounded-full bg-emerald-500 animate-pulse" />
-                          <span>Merchant: alnurstore (https://selar.com/m/alnurstore)</span>
+                        <p className="text-[11px] text-muted-foreground/80 mt-1">
+                          Bank Transfer, Debit Cards & USSD
                         </p>
-                      </div>
-
-                      <button
-                        onClick={handleSelarPayment}
-                        disabled={loading}
-                        className="w-full rounded-full bg-gold-grad py-3.5 text-xs sm:text-sm font-bold text-primary-foreground shadow-gold hover:shadow-glow active:scale-[0.99] transition-all flex items-center justify-center gap-2"
-                      >
-                        {loading ? (
-                          <span>Redirecting to Selar...</span>
-                        ) : (
-                          <>
-                            <span>Pay ₦{totalPrice.toLocaleString()} via Selar</span>
-                            <ExternalLink className="h-4 w-4" />
-                          </>
-                        )}
                       </button>
 
-                      <div className="flex items-center justify-between mt-3.5 pt-3 border-t border-border/60 text-xs">
-                        <button
-                          onClick={() => setStep(1)}
-                          className="text-muted-foreground hover:text-foreground font-medium"
-                        >
-                          ← Edit Details
-                        </button>
-                        <a
-                          href={WHATSAPP}
-                          target="_blank"
-                          rel="noreferrer"
-                          className="text-primary font-bold hover:underline"
-                        >
-                          Or pay via WhatsApp Concierge
-                        </a>
-                      </div>
+                      {/* Selar Option */}
+                      <button
+                        type="button"
+                        onClick={() => setPaymentGateway("selar")}
+                        className={`text-left p-4 rounded-2xl border transition-all relative ${
+                          paymentGateway === "selar"
+                            ? "border-primary bg-primary/10 shadow-sm ring-1 ring-primary/40"
+                            : "border-border bg-card/40 hover:bg-card hover:border-border/80"
+                        }`}
+                      >
+                        <div className="flex items-center justify-between mb-2">
+                          <div className="flex items-center gap-2">
+                            <div className="h-8 w-8 rounded-xl bg-primary/20 text-primary flex items-center justify-center font-bold">
+                              <ShieldCheck className="h-4 w-4" />
+                            </div>
+                            <span className="text-sm font-bold text-foreground">Selar</span>
+                          </div>
+                          <span className="text-[10px] uppercase font-bold text-muted-foreground bg-muted px-2 py-0.5 rounded-full">
+                            Alternative
+                          </span>
+                        </div>
+                        <p className="text-xs text-muted-foreground font-medium">
+                          Official Merchant Checkout
+                        </p>
+                        <p className="text-[11px] text-muted-foreground/80 mt-1">
+                          Direct Selar Storefront Page
+                        </p>
+                      </button>
                     </div>
+
+                    {/* Active Gateway Details & Action */}
+                    {paymentGateway === "monnify" ? (
+                      <div className="rounded-2xl border border-primary/30 p-5 bg-primary/5 space-y-4">
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-2">
+                            <ShieldCheck className="h-5 w-5 text-primary" />
+                            <span className="text-sm font-bold text-foreground">
+                              Monnify Dynamic Checkout
+                            </span>
+                          </div>
+                          <span className="text-[10px] uppercase font-bold text-emerald-600 bg-emerald-100 dark:bg-emerald-950/60 px-2 py-0.5 rounded-full">
+                            Exact ₦{totalPrice.toLocaleString()}
+                          </span>
+                        </div>
+
+                        <div className="text-xs text-muted-foreground space-y-2 leading-relaxed">
+                          <div className="flex items-start gap-2">
+                            <Building2 className="h-4 w-4 text-primary shrink-0 mt-0.5" />
+                            <span>
+                              <strong>Instant Virtual Bank Transfer:</strong> Generates a dedicated Wema / Sterling virtual account for this exact order with instant verification.
+                            </span>
+                          </div>
+                          <div className="flex items-start gap-2">
+                            <CreditCard className="h-4 w-4 text-primary shrink-0 mt-0.5" />
+                            <span>
+                              <strong>Debit Cards & USSD:</strong> Mastercard, Visa, and Verve supported with 2FA OTP security.
+                            </span>
+                          </div>
+                        </div>
+
+                        <button
+                          onClick={handleMonnifyPayment}
+                          disabled={loading}
+                          className="w-full rounded-full bg-gold-grad py-3.5 text-xs sm:text-sm font-bold text-primary-foreground shadow-gold hover:shadow-glow active:scale-[0.99] transition-all flex items-center justify-center gap-2"
+                        >
+                          {loading ? (
+                            <span>Opening Monnify Gateway...</span>
+                          ) : (
+                            <>
+                              <span>Pay ₦{totalPrice.toLocaleString()} with Monnify</span>
+                              <ChevronRight className="h-4 w-4" />
+                            </>
+                          )}
+                        </button>
+
+                        <div className="flex items-center justify-between pt-2 border-t border-border/60 text-xs">
+                          <button
+                            onClick={() => setStep(1)}
+                            className="text-muted-foreground hover:text-foreground font-medium"
+                          >
+                            ← Edit Details
+                          </button>
+                          <a
+                            href={WHATSAPP}
+                            target="_blank"
+                            rel="noreferrer"
+                            className="text-primary font-bold hover:underline"
+                          >
+                            Or pay via WhatsApp Concierge
+                          </a>
+                        </div>
+                      </div>
+                    ) : (
+                      <div className="rounded-2xl border border-primary/30 p-5 bg-primary/5 space-y-4">
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-2">
+                            <ShieldCheck className="h-5 w-5 text-primary" />
+                            <span className="text-sm font-bold text-foreground">
+                              Selar Halal Payment Gateway
+                            </span>
+                          </div>
+                          <span className="text-[10px] uppercase font-bold text-emerald-600 bg-emerald-100 dark:bg-emerald-950/60 px-2 py-0.5 rounded-full">
+                            Active
+                          </span>
+                        </div>
+
+                        <div className="text-xs text-muted-foreground space-y-1.5 leading-relaxed">
+                          <p>
+                            Cards (Mastercard, Visa, Verve), Bank Transfers, and USSD supported
+                            securely via your verified Selar product link.
+                          </p>
+                          <p className="text-[11px] font-mono text-primary flex items-center gap-1.5 pt-0.5">
+                            <span className="inline-block h-2 w-2 rounded-full bg-emerald-500 animate-pulse" />
+                            <span>Product Link: https://selar.com/h3wa923367</span>
+                          </p>
+                        </div>
+
+                        <button
+                          onClick={handleSelarPayment}
+                          disabled={loading}
+                          className="w-full rounded-full bg-gold-grad py-3.5 text-xs sm:text-sm font-bold text-primary-foreground shadow-gold hover:shadow-glow active:scale-[0.99] transition-all flex items-center justify-center gap-2"
+                        >
+                          {loading ? (
+                            <span>Redirecting to Selar...</span>
+                          ) : (
+                            <>
+                              <span>Pay ₦{totalPrice.toLocaleString()} via Selar</span>
+                              <ExternalLink className="h-4 w-4" />
+                            </>
+                          )}
+                        </button>
+
+                        <div className="flex items-center justify-between pt-2 border-t border-border/60 text-xs">
+                          <button
+                            onClick={() => setStep(1)}
+                            className="text-muted-foreground hover:text-foreground font-medium"
+                          >
+                            ← Edit Details
+                          </button>
+                          <a
+                            href={WHATSAPP}
+                            target="_blank"
+                            rel="noreferrer"
+                            className="text-primary font-bold hover:underline"
+                          >
+                            Or pay via WhatsApp Concierge
+                          </a>
+                        </div>
+                      </div>
+                    )}
                   </div>
                 </div>
               )}
@@ -508,7 +736,7 @@ function CheckoutPage() {
 
                 <div className="mt-5 p-3 rounded-xl bg-muted/40 border border-border/60 text-[11px] text-muted-foreground flex items-center gap-2">
                   <Lock className="h-4 w-4 text-primary shrink-0" />
-                  <span>256-bit encrypted SSL payment powered by Selar.</span>
+                  <span>256-bit encrypted SSL payment powered by Monnify & Selar.</span>
                 </div>
               </div>
             </div>

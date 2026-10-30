@@ -1,4 +1,4 @@
-export const DEFAULT_SELAR_STORE_URL = "https://selar.com/m/alnurstore";
+export const DEFAULT_SELAR_STORE_URL = "https://selar.com/h3wa923367";
 export const DEFAULT_SELAR_API_KEY = "sat_873skzy08l1889v50814bs77093r4818j38f8";
 
 /**
@@ -16,6 +16,7 @@ export function getActiveSelarStoreUrl(): string {
       stored.trim().length === 0 ||
       stored.includes("fatima-muhammad") ||
       stored.includes("fatimamuhammad") ||
+      stored.includes("/m/alnurstore") ||
       stored.endsWith("/alnur") ||
       stored.endsWith("/alnur/")
     ) {
