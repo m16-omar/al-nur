@@ -51,7 +51,15 @@ export function ForgotPasswordModal({
       });
 
       if (!res.ok) {
-        throw new Error("Unable to initiate password reset for this email.");
+        const errJson = await res.json().catch(() => null);
+        const reason = String(errJson?.data?.reason || errJson?.message || "");
+        if (reason.toLowerCase().includes("notfound") || reason.toLowerCase().includes("not_found")) {
+          throw new Error("No account found with this email. Please check your spelling or register.");
+        } else if (reason.toLowerCase().includes("toomany")) {
+          throw new Error("Too many attempts. Please wait 15 minutes before requesting another code.");
+        } else {
+          throw new Error("Unable to initiate password reset. Please verify your email.");
+        }
       }
 
       const reqId = await res.json();
