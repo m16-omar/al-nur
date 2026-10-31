@@ -186,6 +186,21 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       console.error(e);
     }
 
+    // Ensure profile is persisted in backend PostgreSQL database
+    try {
+      fetch(`${SERVERPOD_API_URL}/user/registerCustomer`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          email: cleanEmail,
+          fullName: cleanName,
+          phoneNumber: cleanPhone,
+        }),
+      }).catch((err) => console.warn("Backend user registration notice:", err));
+    } catch (e) {
+      console.warn("Backend user registration dispatch notice:", e);
+    }
+
     // Dispatch luxury VIP welcome email via Serverpod asynchronously
     try {
       fetch(`${SERVERPOD_API_URL}/user/sendWelcomeEmail`, {
